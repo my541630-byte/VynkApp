@@ -1,0 +1,12 @@
+{
+  "name": "VynkApp",
+  "short_name": "VynkApp",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "IMG-20261116-WA7103.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
