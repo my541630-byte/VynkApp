@@ -2,36 +2,119 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VynkApp</title><link rel="icon" href="IMG-20261117-WA9690.jpg"
-                        <link rel="apple-touch-icon" href="IMG-20261117-WA9690.jpg"
-                        <link rel="manifest" href="manifest.json">>>
+<title>VynkApp</title>
+<link rel="icon" href="IMG-20261117-WA9690.jpg">
+<link rel="apple-touch-icon" href="IMG-20261117-WA9690.jpg">
+<link rel="manifest" href="manifest.json">
+<style>
+body{margin:0;background:#ffecec;font-family:sans-serif}
+input{width:90%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ddd}
+.btn{width:95%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+</style>
 </head>
-<body style="margin:0; background:#ffecec; font-family:sans-serif;">
+<body>
 
-<div style="background:#e60000; color:white; padding:15px; text-align:center;">
-  <h1 style="margin:0;">❤️ VynkApp</h1>
-  <p style="margin:0; font-size:12px;">Meri Apni Facebook</p>
-</div>
-
-<div style="display:flex; justify-content:space-around; background:white; padding:12px; margin:10px; border-radius:10px;">
-  <b>🏠 Home</b><span>👥 Friends</span><span>🔔 Noti</span><span>👤 Profile</span>
-</div>
-
-<div style="background:white; margin:10px; padding:10px; border-radius:15px; text-align:center;">
-  <img src="https://picsum.photos/600/200?random=10" style="width:100%; height:140px; object-fit:cover; border-radius:10px;">
-  <img src="https://picsum.photos/200/200?random=11" style="width:90px; height:90px; border-radius:50%; border:3px solid red; margin-top:-45px;">
-  <h2 style="margin:5px;">Mera Naam</h2>
-  <button style="background:#e60000; color:white; border:none; padding:8px 20px; border-radius:20px;">+ Add Friend</button>
-</div>
-
-<div style="background:white; margin:10px; padding:10px; border-radius:15px;">
-  <p><b>❤️ VynkApp</b> • Abhi Abhi</p>
-  <img src="https://picsum.photos/500/300?random=20" style="width:100%; border-radius:10px;">
-  <p>Meri pehli post! Kaisi lagi?</p>
-  <div style="display:flex; justify-content:space-around; border-top:1px solid #eee; padding-top:8px;">
-    <span>❤️ Like</span><span>💬 Comment</span><span>↗️ Share</span>
+<!-- LOGIN SCREEN -->
+<div id="loginBox" style="background:#e60000;color:white;padding:15px;text-align:center;min-height:100vh">
+  <h1 style="margin-top:40px">❤️ VynkApp</h1>
+  <p>Meri Apni Facebook</p>
+  <div style="background:white;color:black;margin:20px 10px;padding:20px;border-radius:15px">
+    <h3>Login / Sign Up</h3>
+    <input id="email" type="email" placeholder="Email likho">
+    <input id="password" type="password" placeholder="Password likho">
+    <button class="btn" style="background:#e60000;color:white" onclick="signup()">Sign Up - Naya Account</button>
+    <button class="btn" style="background:#111;color:white" onclick="login()">Login</button>
+    <button class="btn" style="background:#eee" onclick="googleLogin()">Google se Login</button>
+    <p id="msg" style="color:red"></p>
   </div>
 </div>
 
+<!-- TUMHARI APP - LOGIN KE BAAD KHULEGI -->
+<div id="mainApp" style="display:none">
+  <div style="background:#e60000; color:white; padding:15px; text-align:center;">
+    <h1 style="margin:0;">❤️ VynkApp</h1>
+    <p style="margin:0; font-size:12px;">Meri Apni Facebook</p>
+    <p id="userEmail" style="font-size:12px;margin:5px 0"></p>
+    <button onclick="logout()" style="background:white;color:#e60000;border:none;padding:5px 15px;border-radius:20px">Logout</button>
+  </div>
+
+  <div style="display:flex; justify-content:space-around; background:white; padding:12px; margin:10px; border-radius:10px;">
+    <b>🏠 Home</b><span>👥 Friends</span><span>🔔 Noti</span><span>👤 Profile</span>
+  </div>
+
+  <div style="background:white; margin:10px; padding:10px; border-radius:15px; text-align:center;">
+    <img src="https://picsum.photos/600/200?random=10" style="width:100%; height:140px; object-fit:cover; border-radius:10px;">
+    <img src="https://picsum.photos/200/200?random=11" style="width:90px; height:90px; border-radius:50%; border:3px solid red; margin-top:-45px;">
+    <h2 style="margin:5px;">Mera Naam</h2>
+    <button style="background:#e60000; color:white; border:none; padding:8px 20px; border-radius:20px;">+ Add Friend</button>
+  </div>
+
+  <div style="background:white; margin:10px; padding:10px; border-radius:15px;">
+    <p><b>❤️ VynkApp</b> • Abhi Abhi</p>
+    <img src="https://picsum.photos/500/300?random=20" style="width:100%; border-radius:10px;">
+    <p>Meri pehli post! Kaisi lagi?</p>
+    <div style="display:flex; justify-content:space-around; border-top:1px solid #eee; padding-top:8px;">
+      <span>❤️ Like</span><span>💬 Comment</span><span>↗️ Share</span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCvgwt253rKCO3v18nDLuWSbrdgaAXUjjg",
+  authDomain: "vynkapp-1da0.firebaseapp.com",
+  projectId: "vynkapp-1da0",
+  storageBucket: "vynkapp-1da0.firebasestorage.app",
+  messagingSenderId: "85561384540",
+  appId: "1:85561384540:android:a6d7c313304c0caa1d9099"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+async function saveUser(user){
+  await setDoc(doc(db, "users", user.uid), {
+    email: user.email,
+    name: user.displayName || "Mera Naam",
+    createdAt: new Date().toISOString()
+  });
+}
+function showApp(user){
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("mainApp").style.display = "block";
+  document.getElementById("userEmail").innerText = "Welcome: " + user.email;
+}
+onAuthStateChanged(auth, (user)=>{ if(user) showApp(user); });
+
+window.signup = async () => {
+  try{
+    const e = document.getElementById("email").value;
+    const p = document.getElementById("password").value;
+    const res = await createUserWithEmailAndPassword(auth, e, p);
+    await saveUser(res.user); showApp(res.user);
+  }catch(err){ document.getElementById("msg").innerText = err.message; }
+}
+window.login = async () => {
+  try{
+    const e = document.getElementById("email").value;
+    const p = document.getElementById("password").value;
+    const res = await signInWithEmailAndPassword(auth, e, p);
+    await saveUser(res.user); showApp(res.user);
+  }catch(err){ document.getElementById("msg").innerText = err.message; }
+}
+window.googleLogin = async () => {
+  try{
+    const res = await signInWithPopup(auth, provider);
+    await saveUser(res.user); showApp(res.user);
+  }catch(err){ document.getElementById("msg").innerText = err.message; }
+}
+window.logout = async () => { await signOut(auth); location.reload(); }
+</script>
 </body>
-</html>
+      </html>
