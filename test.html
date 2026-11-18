@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>Test Login</title></head>
+<body style="font-family:sans-serif;text-align:center;background:#e60000;color:white;padding:20px">
+<h1>TEST HO GAYA!</h1>
+<p>Agar ye nazar aa raha hai to file save ho gayi hai</p>
+<div style="background:white;color:black;padding:20px;border-radius:15px">
+<input id="email" type="email" placeholder="Email" style="width:90%;padding:12px;margin:5px"><br>
+<input id="password" type="password" placeholder="Password" style="width:90%;padding:12px;margin:5px"><br>
+<button onclick="signup()" style="width:95%;padding:12px;background:#e60000;color:white;border:none;border-radius:10px">Sign Up</button><br><br>
+<button onclick="login()" style="width:95%;padding:12px;background:black;color:white;border:none;border-radius:10px">Login</button>
+<p id="msg"></p>
+</div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const cfg={apiKey:"AIzaSyCvgwt253rKCO3v18nDLuWSbrdgaAXUjjg",authDomain:"vynkapp-1da0.firebaseapp.com",projectId:"vynkapp-1da0",storageBucket:"vynkapp-1da0.firebasestorage.app",messagingSenderId:"85561384540",appId:"1:85561384540:android:a6d7c313304c0caa1d9099"};
+const app=initializeApp(cfg); const auth=getAuth(app);
+window.signup=async()=>{try{const r=await createUserWithEmailAndPassword(auth,email.value,password.value);msg.innerText="Ho gaya! "+r.user.email}catch(e){msg.innerText=e.message}}
+window.login=async()=>{try{const r=await signInWithEmailAndPassword(auth,email.value,password.value);msg.innerText="Login Ho gaya! "+r.user.email}catch(e){msg.innerText=e.message}}
+</script></body></html>
