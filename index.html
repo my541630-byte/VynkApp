@@ -1,78 +1,234 @@
 <!DOCTYPE html>
-<html>
+<html lang="ur">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VynkApp</title>
+<title>Vynk</title>
 <style>
-body{margin:0;background:#ffecec;font-family:sans-serif;text-align:center}
-input{width:90%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px}
-.btn{width:95%;padding:12px;margin:6px 0;background:#ff4757;color:white;border:none;border-radius:8px;font-size:16px}
-.card{background:white;margin:10px;padding:15px;border-radius:12px;text-align:left}
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#f0f2f5;direction:rtl}
+.screen{display:none;min-height:100vh;padding-bottom:80px}
+.screen.active{display:block}
+.center{text-align:center}
+input{width:90%;padding:13px;margin:8px auto;display:block;border:1px solid #ddd;border-radius:12px;font-size:15px}
+.btn{width:90%;padding:13px;margin:8px auto;display:block;border:none;border-radius:25px;font-size:16px;font-weight:bold;color:white;cursor:pointer;background:#1877f2}
+.topBar{background:white;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 1px 5px #ddd}
+.logo{font-size:26px;font-weight:900;color:#1877f2}
+.card{background:white;margin:10px;border-radius:15px;padding:12px;box-shadow:0 1px 4px #ddd}
+.avatar{width:45px;height:45px;border-radius:50%;object-fit:cover}
+.storyRow{display:flex;gap:10px;overflow-x:auto;padding:10px}
+.story{width:70px;text-align:center;flex-shrink:0}
+.story img{width:60px;height:60px;border-radius:50%;border:3px solid #1877f2;object-fit:cover}
+.postImg{width:100%;border-radius:12px;margin-top:8px}
+.actionRow{display:flex;justify-content:space-around;border-top:1px solid #eee;margin-top:10px;padding-top:8px}
+.actionRow button{border:none;background:none;font-size:14px}
+.actionRow button.active{color:#1877f2;font-weight:bold}
+.bottomNav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #ddd;z-index:20}
+.bottomNav button{border:none;background:none;font-size:11px;text-align:center}
+.bottomNav button.active{color:#1877f2;font-weight:bold}
+.profileHead{background:#1877f2;color:white;padding:20px;text-align:center}
+.profileHead img{width:90px;height:90px;border-radius:50%;border:4px solid white;object-fit:cover}
+.friendRow{display:flex;align-items:center;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px}
+.chatRow{display:flex;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px;align-items:center}
+.videoBox{background:black;color:white;border-radius:15px;margin:10px;overflow:hidden;position:relative}
+.videoBox img{width:100%;height:420px;object-fit:cover}
+.notiRow{display:flex;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px;align-items:center}
+.settingRow{background:white;margin:8px 12px;padding:14px;border-radius:12px;display:flex;justify-content:space-between}
+.cmt{background:#f0f2f5;padding:8px;border-radius:10px;margin-top:6px;font-size:14px}
 </style>
 </head>
 <body>
-<div id="loginBox" style="background:#ff4757;color:white;padding:20px;min-height:100vh">
-<h1 style="margin-top:40px">❤️ Vynk</h1>
-<p>Apne Doston Se Judo</p>
-<div style="background:white;color:black;padding:20px;border-radius:15px">
-<h3>Login / Sign Up</h3>
-<input id="name" placeholder="Apna Naam Likho">
-<input id="email" placeholder="Email / Mobile Number">
-<input id="pass" type="password" placeholder="Password">
-<button class="btn" onclick="signup()">Sign Up - Naya Account</button>
-<button class="btn" style="background:#2ed573" onclick="login()">Login - Andar Jao</button>
-<p id="msg" style="color:red"></p>
+
+<!-- SPLASH -->
+<div id="splash" class="screen active" style="background:#1877f2;color:white;text-align:center;padding-top:120px">
+<h1 style="font-size:65px">Vynk</h1>
+<p style="margin-top:15px;font-size:18px">نئے دوست، نئی کہانیاں</p>
+<button class="btn" style="background:white;color:#1877f2;margin-top:40px" onclick="show('login')">شروع کریں</button>
+<p style="font-size:13px;margin-top:10px">پہلے سے اکاؤنٹ ہے؟ <b onclick="show('login')" style="text-decoration:underline">لاگ ان کریں</b></p>
 </div>
+
+<!-- LOGIN -->
+<div id="login" class="screen" style="background:white;padding:30px 10px">
+<h2 class="logo center">Vynk</h2>
+<h3 class="center" style="margin:15px">لاگ ان کریں</h3>
+<input id="lName" placeholder="اپنا نام لکھیں">
+<input id="lEmail" placeholder="موبائل نمبر یا ای میل">
+<input id="lPass" type="password" placeholder="پاس ورڈ">
+<button class="btn" onclick="doLogin()">لاگ ان کریں</button>
+<p class="center" style="font-size:13px;color:#1877f2">پاس ورڈ بھول گئے؟</p>
+<p class="center">یا</p>
+<button class="btn" style="background:#f0f2f5;color:black" onclick="doLogin()">G گوگل کے ذریعے جاری رکھیں</button>
+<button class="btn" style="background:#1877f2" onclick="doLogin()">f فیس بک کے ذریعے جاری رکھیں</button>
+<p class="center" style="margin-top:15px;font-size:13px">اکاؤنٹ نہیں ہے؟ <b style="color:#1877f2" onclick="doSignup()">رجسٹر کریں</b></p>
+<p id="loginMsg" class="center" style="color:red"></p>
 </div>
-<div id="feedBox" style="display:none;padding:15px">
-<h2>❤️ Vynk Feed</h2>
-<p id="welcome"></p>
-<input id="postText" placeholder="Kuch likho...">
-<button class="btn" onclick="addPost()">Post Karo</button>
+
+<!-- FEED -->
+<div id="feed" class="screen">
+<div class="topBar"><div class="logo">Vynk</div><div>🔍 🔔 <b onclick="show('profile')">👤</b></div></div>
+<div class="storyRow">
+<div class="story"><img src="https://i.pravatar.cc/100?img=12"><div>آپ کی کہانی</div></div>
+<div class="story"><img src="https://i.pravatar.cc/100?img=32"><div>عائشہ</div></div>
+<div class="story"><img src="https://i.pravatar.cc/100?img=13"><div>احمد</div></div>
+<div class="story"><img src="https://i.pravatar.cc/100?img=47"><div>سارا</div></div>
+<div class="story"><img src="https://i.pravatar.cc/100?img=59"><div>علی</div></div>
+</div>
+<div class="card">
+<div style="display:flex;gap:10px;align-items:center"><img class="avatar" src="https://i.pravatar.cc/100?img=12"><input id="postText" placeholder="کیا سوچ رہے ہیں؟" style="margin:0"></div>
+<div style="display:flex;gap:8px;margin-top:10px;align-items:center"><label style="font-size:13px">📷 تصویر / 🎥 ویڈیو</label><input type="file" id="mediaFile" accept="image/*,video/*" style="width:45%;padding:5px"><button class="btn" style="width:100px;margin:0;padding:8px" onclick="addPost()">پوسٹ کریں</button></div>
+<p id="preview" style="font-size:12px;color:green"></p>
+</div>
 <div id="posts"></div>
-<button class="btn" style="background:#57606f" onclick="logout()">Logout</button>
 </div>
+
+<!-- PROFILE -->
+<div id="profile" class="screen">
+<div class="profileHead">
+<img src="https://i.pravatar.cc/200?img=12">
+<h2 id="profileName">علی خان</h2>
+<p>@AliKhan</p>
+<button class="btn" style="background:white;color:#1877f2;width:150px;padding:8px" onclick="show('friends')">دوست بنیں</button>
+<div style="display:flex;justify-content:space-around;margin-top:15px"><div><b>125</b><br>پوسٹس</div><div><b>2.4K</b><br>دوست</div><div><b>1.8K</b><br>فالوور</div></div>
+</div>
+<div class="card"><b>👤 علی خان</b><p>آج کا خوبصورت دن 😍</p><img class="postImg" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"><div class="actionRow"><button>❤️ 1.2K</button><button>💬 37</button><button>↗️ شیئر</button></div></div>
+</div>
+
+<!-- FRIENDS -->
+<div id="friends" class="screen">
+<div class="topBar"><b>دوست</b><span>🔍</span></div>
+<div id="friendList"></div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="screen">
+<div class="topBar"><b>چیٹ</b></div>
+<input placeholder="دوستوں کو تلاش کریں">
+<div class="chatRow"><img class="avatar" src="https://i.pravatar.cc/100?img=47"><div style="flex:1"><b>سارا خان</b><br><small>کیا حال ہے؟</small></div><small>شام 6 بجے</small></div>
+<div class="chatRow"><img class="avatar" src="https://i.pravatar.cc/100?img=13"><div style="flex:1"><b>احمد رضا</b><br><small>ٹھیک ہوں، آپ بتائیں؟</small></div><small>شام 5 بجے</small></div>
+<div class="card"><b>سارا خان کے ساتھ چیٹ</b><div class="cmt">سارا: ہیلو! کیسے ہو؟</div><div style="display:flex;gap:5px;margin-top:8px"><input id="chatInput" placeholder="پیغام لکھیں..." style="margin:0"><button class="btn" style="width:80px;margin:0;padding:10px" onclick="sendChat()">بھیجیں</button></div><div id="chatMsgs"></div></div>
+</div>
+
+<!-- VIDEOS -->
+<div id="videos" class="screen">
+<div class="topBar"><b>ویڈیوز</b></div>
+<div class="videoBox"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"><div style="position:absolute;bottom:10px;right:10px"><b>سارا خان</b><p>❤️ خوبصورت پہاڑ</p></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px">▶️</div></div>
+<div class="videoBox"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600"><div style="position:absolute;bottom:10px;right:10px"><b>احمد رضا</b><p>ساحل پر شام 🌅</p></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px">▶️</div></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="noti" class="screen">
+<div class="topBar"><b>نوٹیفکیشن</b></div>
+<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=47"><div><b>سارہ خان</b> نے آپ کی پوسٹ پر لائک کیا ❤️<br><small>2 گھنٹے پہلے</small></div></div>
+<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=13"><div><b>علی خان</b> نے دوست بنانے کی درخواست بھیجی 👥<br><small>3 گھنٹے پہلے</small></div></div>
+<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=32"><div><b>فہد</b> نے آپ کے کمنٹ پر جواب دیا 💬<br><small>5 گھنٹے پہلے</small></div></div>
+</div>
+
+<!-- CREATE -->
+<div id="create" class="screen">
+<div class="topBar"><span onclick="show('feed')">✖️</span><b>پوسٹ بنائیں</b><button style="border:none;background:#1877f2;color:white;padding:8px 15px;border-radius:20px" onclick="addPost();show('feed')">شیئر کریں</button></div>
+<div class="card"><b>👤 <span id="createName">علی خان</span></b><br><input id="postText2" placeholder="یہاں کچھ لکھیں..." style="border:none"><br><div>📷 تصویر &nbsp; 🎥 ویڈیو &nbsp; 📍 مقام</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+<div class="topBar"><span onclick="show('feed')">‹</span><b>ترتیبات</b></div>
+<div class="card" style="display:flex;gap:10px;align-items:center"><img class="avatar" src="https://i.pravatar.cc/100?img=12"><div><b id="settingName">علی خان</b><br><small>@AliKhan</small></div></div>
+<div class="settingRow"><span>👤 اکاؤنٹ کی معلومات</span><span>›</span></div>
+<div class="settingRow"><span>🔒 رازداری اور سیکیورٹی</span><span>›</span></div>
+<div class="settingRow"><span>🔔 اطلاعات</span><span>›</span></div>
+<div class="settingRow"><span>🌍 زبان - اردو</span><span>›</span></div>
+<div class="settingRow"><span>❓ مدد و معاونت</span><span>›</span></div>
+<button class="btn" style="background:#ff2e3e" onclick="show('login')">لاگ آؤٹ کریں</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomNav" id="bottomNav" style="display:none">
+<button onclick="show('feed')" id="nav-feed">🏠<br>ہوم</button>
+<button onclick="show('friends')" id="nav-friends">👥<br>دوست</button>
+<button onclick="show('create')" id="nav-create" style="background:#1877f2;color:white;border-radius:50%;width:50px;height:50px;margin-top:-20px;font-size:20px">+</button>
+<button onclick="show('videos')" id="nav-videos">🎥<br>ویڈیو</button>
+<button onclick="show('noti')" id="nav-noti">🔔<br>نوٹیفکیشن</button>
+<button onclick="show('chat')" id="nav-chat">💬<br>چیٹ</button>
+</div>
+
 <script>
-function signup(){
-var n=document.getElementById('name').value;
-var e=document.getElementById('email').value;
-var p=document.getElementById('pass').value;
-if(!n||!e||!p){document.getElementById('msg').innerText='Sab khane bharo!';return;}
-localStorage.setItem('vynk_user', JSON.stringify({name:n,email:e,pass:p}));
-alert('Account Ban Gaya! Ab Login Dabao');
+var currentUser="علی خان";
+var selectedMedia=null, selectedType="";
+var friends=[
+{name:"عائشہ خان", mutual:"12 مشترکہ دوست", img:32},
+{name:"فہد علی", mutual:"8 مشترکہ دوست", img:13},
+{name:"سارا احمد", mutual:"15 مشترکہ دوست", img:47},
+{name:"عثمان قریشی", mutual:"10 مشترکہ دوست", img:59},
+{name:"مریم جاوید", mutual:"7 مشترکہ دوست", img:44}
+];
+function show(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+var showNav=['feed','friends','videos','noti','settings','profile','chat','create'].includes(id);
+document.getElementById('bottomNav').style.display=showNav?'flex':'none';
+document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.remove('active'));
+var nav=document.getElementById('nav-'+id); if(nav) nav.classList.add('active');
+window.scrollTo(0,0);
 }
-function login(){
-var e=document.getElementById('email').value;
-var p=document.getElementById('pass').value;
+document.getElementById('mediaFile').addEventListener('change', function(e){
+var f=e.target.files[0]; if(!f) return;
+var r=new FileReader(); r.onload=function(ev){ selectedMedia=ev.target.result; selectedType=f.type.indexOf('video')!==-1?'video':'image'; document.getElementById('preview').innerText='✅ فائل لگ گئی: '+f.name; }; r.readAsDataURL(f);
+});
+function doSignup(){
+var n=document.getElementById('lName').value;
+if(!n){ document.getElementById('loginMsg').innerText='پہلے اپنا نام لکھیں!'; return; }
+currentUser=n; localStorage.setItem('vynk_user', JSON.stringify({name:n,email:document.getElementById('lEmail').value,pass:document.getElementById('lPass').value}));
+document.getElementById('profileName').innerText=n; document.getElementById('settingName').innerText=n; document.getElementById('createName').innerText=n;
+show('feed'); renderFriends(); showPosts();
+}
+function doLogin(){
+var n=document.getElementById('lName').value||"علی خان";
+var e=document.getElementById('lEmail').value;
+var p=document.getElementById('lPass').value;
 var saved=JSON.parse(localStorage.getItem('vynk_user')||'null');
-if(saved && saved.email==e && saved.pass==p){
-document.getElementById('loginBox').style.display='none';
-document.getElementById('feedBox').style.display='block';
-document.getElementById('welcome').innerText='Welcome, '+saved.name+'!';
-showPosts();
-} else {
-document.getElementById('msg').innerText='Email ya Password Ghalat Hai. Pehle Sign Up Karo.';
-}
+if(saved && e && saved.email && saved.email!==e){ document.getElementById('loginMsg').innerText='یہ ای میل پہلے سے نہیں ہے، پہلے رجسٹر کریں'; return; }
+currentUser=n; document.getElementById('profileName').innerText=n; document.getElementById('settingName').innerText=n; document.getElementById('createName').innerText=n;
+if(!saved){ localStorage.setItem('vynk_user', JSON.stringify({name:n,email:e,pass:p})); }
+show('feed'); renderFriends(); showPosts();
 }
 function addPost(){
-var t=document.getElementById('postText').value;
-if(!t) return;
-var posts=JSON.parse(localStorage.getItem('vynk_posts')||'[]');
-posts.unshift(t);
-localStorage.setItem('vynk_posts', JSON.stringify(posts));
-document.getElementById('postText').value='';
+var t=document.getElementById('postText').value||document.getElementById('postText2').value;
+if(!t && !selectedMedia){ alert('کچھ لکھیں یا فوٹو / ویڈیو لگائیں!'); return; }
+var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
+posts.unshift({name:currentUser,text:t,media:selectedMedia,type:selectedType,likes:0,liked:false,comments:[]});
+localStorage.setItem('vynk_posts_final', JSON.stringify(posts));
+document.getElementById('postText').value=''; document.getElementById('postText2').value=''; selectedMedia=null; document.getElementById('preview').innerText='';
 showPosts();
 }
+function likePost(i){
+var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
+posts[i].liked=!posts[i].liked; posts[i].likes+=posts[i].liked?1:-1;
+localStorage.setItem('vynk_posts_final', JSON.stringify(posts)); showPosts();
+}
+function addComment(i){
+var inp=document.getElementById('cmt'+i); if(!inp.value) return;
+var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
+posts[i].comments.push(currentUser+': '+inp.value);
+localStorage.setItem('vynk_posts_final', JSON.stringify(posts)); showPosts();
+}
 function showPosts(){
-var posts=JSON.parse(localStorage.getItem('vynk_posts')||'[]');
+var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
+if(posts.length==0){
+posts=[{name:"سارہ خان",text:"زندگی خوبصورت ہے ❤️",media:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600",type:"image",likes:12,liked:false,comments:["عائشہ: بہت خوب!"]}];
+localStorage.setItem('vynk_posts_final', JSON.stringify(posts));
+}
 var html='';
-for(var i=0;i<posts.length;i++){ html+='<div class="card">'+posts[i]+'</div>'; }
-document.getElementById('posts').innerHTML=html || '<p>Abhi koi post nahi hai.</p>';
+for(var i=0;i<posts.length;i++){ var p=posts[i]; var m=''; if(p.media && p.type=='image') m='<img class="postImg" src="'+p.media+'">'; if(p.media && p.type=='video') m='<video class="postImg" controls src="'+p.media+'"></video>'; var cm=''; for(var j=0;j<p.comments.length;j++) cm+='<div class="cmt">💬 '+p.comments[j]+'</div>'; html+='<div class="card"><b>👤 '+p.name+'</b><p style="margin:8px 0">'+(p.text||'')+'</p>'+m+'<div style="font-size:13px;color:#666">❤️ '+p.likes+' • '+p.comments.length+' کمنٹس</div><div class="actionRow"><button class="'+(p.liked?'active':'')+'" onclick="likePost('+i+')">❤️ لائک ('+p.likes+')</button><button onclick="document.getElementById(\'cmt'+i+'\').focus()">💬 کمنٹ</button><button>↗️ شیئر</button></div>'+cm+'<div style="display:flex;gap:5px;margin-top:8px"><input id="cmt'+i+'" placeholder="کمنٹ لکھیں..." style="margin:0"><button style="border:none;background:#1877f2;color:white;padding:8px 12px;border-radius:20px" onclick="addComment('+i+')">بھیجیں</button></div></div>'; }
+document.getElementById('posts').innerHTML=html;
 }
-function logout(){
-document.getElementById('feedBox').style.display='none';
-document.getElementById('loginBox').style.display='block';
+function renderFriends(){
+var h=''; for(var i=0;i<friends.length;i++){ h+='<div class="friendRow"><img class="avatar" src="https://i.pravatar.cc/100?img='+friends[i].img+'"><div style="flex:1"><b>'+friends[i].name+'</b><br><small>'+friends[i].mutual+'</small></div><button style="background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:20px" onclick="this.innerText=\'دوست بن گئے ✅\';this.style.background=\'#2ed573\'">دوست بنائیں</button></div>'; } document.getElementById('friendList').innerHTML=h;
 }
+function sendChat(){
+var v=document.getElementById('chatInput').value; if(!v) return;
+document.getElementById('chatMsgs').innerHTML+='<div class="cmt" style="background:#dbeafe">تم: '+v+'</div>'; document.getElementById('chatInput').value='';
+}
+renderFriends(); showPosts();
 </script>
 </body>
-                  </html>
+  </html>
