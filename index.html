@@ -3,232 +3,303 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vynk</title>
+<title>Vynk - Complete App</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:#f0f2f5;direction:rtl}
-.screen{display:none;min-height:100vh;padding-bottom:80px}
+body{background:#f0f2f5}
+.screen{display:none;min-height:100vh;padding-bottom:90px}
 .screen.active{display:block}
 .center{text-align:center}
 input{width:90%;padding:13px;margin:8px auto;display:block;border:1px solid #ddd;border-radius:12px;font-size:15px}
-.btn{width:90%;padding:13px;margin:8px auto;display:block;border:none;border-radius:25px;font-size:16px;font-weight:bold;color:white;cursor:pointer;background:#1877f2}
+.btn{width:90%;padding:13px;margin:8px auto;display:block;border:none;border-radius:25px;font-weight:bold;color:white;background:#1877f2;cursor:pointer}
 .topBar{background:white;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 1px 5px #ddd}
 .logo{font-size:26px;font-weight:900;color:#1877f2}
 .card{background:white;margin:10px;border-radius:15px;padding:12px;box-shadow:0 1px 4px #ddd}
-.avatar{width:45px;height:45px;border-radius:50%;object-fit:cover}
-.storyRow{display:flex;gap:10px;overflow-x:auto;padding:10px}
-.story{width:70px;text-align:center;flex-shrink:0}
-.story img{width:60px;height:60px;border-radius:50%;border:3px solid #1877f2;object-fit:cover}
+.avatar{width:45px;height:45px;border-radius:50%;background:#1877f2;color:white;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;flex-shrink:0}
+.storyAv{width:60px;height:60px;border-radius:50%;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);padding:3px;display:flex;align-items:center;justify-content:center}
+.storyAv div{width:52px;height:52px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#1877f2}
 .postImg{width:100%;border-radius:12px;margin-top:8px}
 .actionRow{display:flex;justify-content:space-around;border-top:1px solid #eee;margin-top:10px;padding-top:8px}
-.actionRow button{border:none;background:none;font-size:14px}
-.actionRow button.active{color:#1877f2;font-weight:bold}
-.bottomNav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #ddd;z-index:20}
-.bottomNav button{border:none;background:none;font-size:11px;text-align:center}
-.bottomNav button.active{color:#1877f2;font-weight:bold}
-.profileHead{background:#1877f2;color:white;padding:20px;text-align:center}
-.profileHead img{width:90px;height:90px;border-radius:50%;border:4px solid white;object-fit:cover}
-.friendRow{display:flex;align-items:center;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px}
-.chatRow{display:flex;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px;align-items:center}
-.videoBox{background:black;color:white;border-radius:15px;margin:10px;overflow:hidden;position:relative}
-.videoBox img{width:100%;height:420px;object-fit:cover}
-.notiRow{display:flex;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px;align-items:center}
-.settingRow{background:white;margin:8px 12px;padding:14px;border-radius:12px;display:flex;justify-content:space-between}
+.actionRow button{border:none;background:none;font-size:14px;cursor:pointer}
+.bottomNav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;align-items:center;padding:8px 0;border-top:1px solid #ddd;z-index:20}
+.bottomNav button{border:none;background:none;font-size:11px;cursor:pointer}
+.uploadBtn{background:#e7f3ff;color:#1877f2;border:1px solid #1877f2;padding:10px;border-radius:20px;text-align:center;font-weight:bold;display:block;width:100%;cursor:pointer}
+#mediaFile{display:none}
+.emptyBox{background:white;margin:20px;padding:30px;border-radius:15px;text-align:center;color:#666}
 .cmt{background:#f0f2f5;padding:8px;border-radius:10px;margin-top:6px;font-size:14px}
+.friendRow{display:flex;gap:10px;background:white;margin:8px;padding:10px;border-radius:12px;align-items:center}
+.langBtn{background:white;border:1px solid #1877f2;color:#1877f2;padding:6px 12px;border-radius:20px;font-weight:bold;cursor:pointer}
+.chatBox{background:#f0f2f5;padding:10px;border-radius:12px;margin:6px 0;max-width:85%}
+.chatMine{background:#1877f2;color:white;margin-left:auto}
+.notiItem{background:white;margin:8px;padding:12px;border-radius:12px;display:flex;gap:10px;align-items:center}
+.badge{background:red;color:white;border-radius:50%;padding:2px 7px;font-size:11px}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash" class="screen active" style="background:#1877f2;color:white;text-align:center;padding-top:120px">
-<h1 style="font-size:65px">Vynk</h1>
-<p style="margin-top:15px;font-size:18px">نئے دوست، نئی کہانیاں</p>
-<button class="btn" style="background:white;color:#1877f2;margin-top:40px" onclick="show('login')">شروع کریں</button>
-<p style="font-size:13px;margin-top:10px">پہلے سے اکاؤنٹ ہے؟ <b onclick="show('login')" style="text-decoration:underline">لاگ ان کریں</b></p>
+<div style="position:fixed;top:5px;left:10px;z-index:100;display:flex;gap:5px">
+<button class="langBtn" onclick="setLang('ur')">اردو</button>
+<button class="langBtn" onclick="setLang('en')">English</button>
 </div>
 
-<!-- LOGIN -->
+<div id="splash" class="screen active" style="background:#1877f2;color:white;text-align:center;padding-top:120px">
+<h1 style="font-size:65px">Vynk</h1>
+<p style="margin-top:15px" data-ur="مکمل ایپ - سب کچھ اصل" data-en="Complete App - All Real">مکمل ایپ - سب کچھ اصل</p>
+<button class="btn" style="background:white;color:#1877f2;margin-top:40px" onclick="show('login')" data-ur="شروع کریں" data-en="Get Started">شروع کریں</button>
+</div>
+
 <div id="login" class="screen" style="background:white;padding:30px 10px">
 <h2 class="logo center">Vynk</h2>
-<h3 class="center" style="margin:15px">لاگ ان کریں</h3>
-<input id="lName" placeholder="اپنا نام لکھیں">
-<input id="lEmail" placeholder="موبائل نمبر یا ای میل">
-<input id="lPass" type="password" placeholder="پاس ورڈ">
-<button class="btn" onclick="doLogin()">لاگ ان کریں</button>
-<p class="center" style="font-size:13px;color:#1877f2">پاس ورڈ بھول گئے؟</p>
-<p class="center">یا</p>
-<button class="btn" style="background:#f0f2f5;color:black" onclick="doLogin()">G گوگل کے ذریعے جاری رکھیں</button>
-<button class="btn" style="background:#1877f2" onclick="doLogin()">f فیس بک کے ذریعے جاری رکھیں</button>
-<p class="center" style="margin-top:15px;font-size:13px">اکاؤنٹ نہیں ہے؟ <b style="color:#1877f2" onclick="doSignup()">رجسٹر کریں</b></p>
+<h3 class="center" style="margin:15px" data-ur="اصل اکاؤنٹ بنائیں" data-en="Create Real Account">اصل اکاؤنٹ بنائیں</h3>
+<input id="lName" placeholder="Your Real Name / اصل نام">
+<input id="lEmail" placeholder="Email / ای میل - ali@gmail.com">
+<input id="lPass" type="password" placeholder="Password / پاس ورڈ - 6+">
+<button class="btn" onclick="doSignup()" data-ur="نیا اکاؤنٹ بنائیں" data-en="Create Account">نیا اکاؤنٹ بنائیں</button>
+<button class="btn" style="background:#42b72a" onclick="doLogin()" data-ur="لاگ ان کریں" data-en="Login">لاگ ان کریں</button>
 <p id="loginMsg" class="center" style="color:red"></p>
 </div>
 
-<!-- FEED -->
 <div id="feed" class="screen">
-<div class="topBar"><div class="logo">Vynk</div><div>🔍 🔔 <b onclick="show('profile')">👤</b></div></div>
-<div class="storyRow">
-<div class="story"><img src="https://i.pravatar.cc/100?img=12"><div>آپ کی کہانی</div></div>
-<div class="story"><img src="https://i.pravatar.cc/100?img=32"><div>عائشہ</div></div>
-<div class="story"><img src="https://i.pravatar.cc/100?img=13"><div>احمد</div></div>
-<div class="story"><img src="https://i.pravatar.cc/100?img=47"><div>سارا</div></div>
-<div class="story"><img src="https://i.pravatar.cc/100?img=59"><div>علی</div></div>
+<div class="topBar"><div class="logo">Vynk</div><div><span onclick="show('search')">🔍</span> <span onclick="show('noti')">🔔 <span id="notiBadge" class="badge" style="display:none">0</span></span> <b id="userNameTop" onclick="show('profile')">👤</b></div></div>
+<div class="card" style="display:flex;gap:12px;overflow-x:auto">
+<div style="text-align:center;min-width:65px" onclick="addStory()"><div class="storyAv"><div>+</div></div><small data-ur="سٹوری لگاؤ" data-en="Add Story">سٹوری لگاؤ</small></div>
+<div id="storyList" style="display:flex;gap:12px"></div>
 </div>
 <div class="card">
-<div style="display:flex;gap:10px;align-items:center"><img class="avatar" src="https://i.pravatar.cc/100?img=12"><input id="postText" placeholder="کیا سوچ رہے ہیں؟" style="margin:0"></div>
-<div style="display:flex;gap:8px;margin-top:10px;align-items:center"><label style="font-size:13px">📷 تصویر / 🎥 ویڈیو</label><input type="file" id="mediaFile" accept="image/*,video/*" style="width:45%;padding:5px"><button class="btn" style="width:100px;margin:0;padding:8px" onclick="addPost()">پوسٹ کریں</button></div>
-<p id="preview" style="font-size:12px;color:green"></p>
+<div style="display:flex;gap:10px;align-items:center"><div class="avatar" id="myAvatar">Y</div><input id="postText" placeholder="What's on your mind? / کیا سوچ رہے ہیں؟" style="margin:0;flex:1"></div>
+<div style="margin-top:12px">
+<label class="uploadBtn" for="mediaFile">📷 Photo / تصویر - 🎥 Video / ویڈیو</label>
+<input type="file" id="mediaFile" accept="image/*,video/*">
+<p id="preview" style="font-size:12px;color:green;text-align:center"></p>
+<button class="btn" style="width:100%" onclick="addPost()" data-ur="پوسٹ کریں" data-en="Post">پوسٹ کریں</button>
+</div>
 </div>
 <div id="posts"></div>
 </div>
 
-<!-- PROFILE -->
+<div id="search" class="screen">
+<div class="topBar"><span onclick="show('feed')">‹</span><b>Search / تلاش</b></div>
+<input id="searchInput" placeholder="دوست کا نام لکھو... / Search name..." oninput="doSearch()">
+<div id="searchResult"></div>
+</div>
+
 <div id="profile" class="screen">
-<div class="profileHead">
-<img src="https://i.pravatar.cc/200?img=12">
-<h2 id="profileName">علی خان</h2>
-<p>@AliKhan</p>
-<button class="btn" style="background:white;color:#1877f2;width:150px;padding:8px" onclick="show('friends')">دوست بنیں</button>
-<div style="display:flex;justify-content:space-around;margin-top:15px"><div><b>125</b><br>پوسٹس</div><div><b>2.4K</b><br>دوست</div><div><b>1.8K</b><br>فالوور</div></div>
+<div style="background:#1877f2;color:white;padding:20px;text-align:center">
+<div class="avatar" id="profileAvatar" style="width:90px;height:90px;font-size:40px;margin:0 auto">Y</div>
+<h2 id="profileName">You</h2>
+<p id="profileEmail">@user</p>
+<div style="display:flex;justify-content:space-around;margin-top:15px"><div><b id="myPostCount">0</b><br>Posts</div><div><b id="realUserCount">0</b><br>Real Users</div><div><b id="myFriendCount">0</b><br>Friends</div></div>
 </div>
-<div class="card"><b>👤 علی خان</b><p>آج کا خوبصورت دن 😍</p><img class="postImg" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"><div class="actionRow"><button>❤️ 1.2K</button><button>💬 37</button><button>↗️ شیئر</button></div></div>
+<div class="card"><b>My Posts / میری پوسٹیں</b></div>
+<div id="myPosts"></div>
 </div>
 
-<!-- FRIENDS -->
 <div id="friends" class="screen">
-<div class="topBar"><b>دوست</b><span>🔍</span></div>
+<div class="topBar"><b data-ur="دوست - صرف اصل لوگ" data-en="Friends - Only Real People">دوست - صرف اصل لوگ</b></div>
 <div id="friendList"></div>
+<div id="noFriends" class="emptyBox"><h3 data-ur="ابھی کوئی دوست نہیں ہے" data-en="No Friends Yet">ابھی کوئی دوست نہیں ہے</h3><p data-ur="جب کوئی اکاؤنٹ بنائے گا، تب ہی آئے گا۔" data-en="When someone creates account, they will show here.">جب کوئی اکاؤنٹ بنائے گا، تب ہی آئے گا۔</p></div>
 </div>
 
-<!-- CHAT -->
 <div id="chat" class="screen">
-<div class="topBar"><b>چیٹ</b></div>
-<input placeholder="دوستوں کو تلاش کریں">
-<div class="chatRow"><img class="avatar" src="https://i.pravatar.cc/100?img=47"><div style="flex:1"><b>سارا خان</b><br><small>کیا حال ہے؟</small></div><small>شام 6 بجے</small></div>
-<div class="chatRow"><img class="avatar" src="https://i.pravatar.cc/100?img=13"><div style="flex:1"><b>احمد رضا</b><br><small>ٹھیک ہوں، آپ بتائیں؟</small></div><small>شام 5 بجے</small></div>
-<div class="card"><b>سارا خان کے ساتھ چیٹ</b><div class="cmt">سارا: ہیلو! کیسے ہو؟</div><div style="display:flex;gap:5px;margin-top:8px"><input id="chatInput" placeholder="پیغام لکھیں..." style="margin:0"><button class="btn" style="width:80px;margin:0;padding:10px" onclick="sendChat()">بھیجیں</button></div><div id="chatMsgs"></div></div>
+<div class="topBar"><b>Chat / چیٹ</b></div>
+<div id="chatList"></div>
+<div class="emptyBox" id="noChat"><h3>No Chats Yet</h3><p>دوست بناؤ، پھر چیٹ کرو</p></div>
 </div>
 
-<!-- VIDEOS -->
+<div id="chatRoom" class="screen">
+<div class="topBar"><span onclick="show('chat')">‹ Back</span><b id="chatWithName">Chat</b></div>
+<div id="chatMessages" style="padding:10px"></div>
+<div style="position:fixed;bottom:60px;left:0;right:0;background:white;padding:10px;display:flex;gap:5px"><input id="chatInput" placeholder="Message لکھو..." style="margin:0;flex:1"><button style="background:#1877f2;color:white;border:none;padding:10px 18px;border-radius:20px" onclick="sendMessage()">Send</button></div>
+</div>
+
 <div id="videos" class="screen">
-<div class="topBar"><b>ویڈیوز</b></div>
-<div class="videoBox"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600"><div style="position:absolute;bottom:10px;right:10px"><b>سارا خان</b><p>❤️ خوبصورت پہاڑ</p></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px">▶️</div></div>
-<div class="videoBox"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600"><div style="position:absolute;bottom:10px;right:10px"><b>احمد رضا</b><p>ساحل پر شام 🌅</p></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:50px">▶️</div></div>
+<div class="topBar"><b>Videos / ویڈیوز</b></div>
+<div id="videoList"></div>
+<div class="emptyBox" id="noVideo"><h3>No Videos Yet</h3><p>جب کوئی ویڈیو لگائے گا، تب ہی آئے گی</p></div>
 </div>
 
-<!-- NOTIFICATIONS -->
 <div id="noti" class="screen">
-<div class="topBar"><b>نوٹیفکیشن</b></div>
-<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=47"><div><b>سارہ خان</b> نے آپ کی پوسٹ پر لائک کیا ❤️<br><small>2 گھنٹے پہلے</small></div></div>
-<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=13"><div><b>علی خان</b> نے دوست بنانے کی درخواست بھیجی 👥<br><small>3 گھنٹے پہلے</small></div></div>
-<div class="notiRow"><img class="avatar" src="https://i.pravatar.cc/100?img=32"><div><b>فہد</b> نے آپ کے کمنٹ پر جواب دیا 💬<br><small>5 گھنٹے پہلے</small></div></div>
+<div class="topBar"><b>Notifications / نوٹیفکیشن</b></div>
+<div id="notiList"></div>
+<div class="emptyBox" id="noNoti"><h3>No Notifications Yet</h3><p>جب کوئی لائک / کمنٹ کرے گا، تب یہاں آئے گا</p></div>
 </div>
 
-<!-- CREATE -->
 <div id="create" class="screen">
-<div class="topBar"><span onclick="show('feed')">✖️</span><b>پوسٹ بنائیں</b><button style="border:none;background:#1877f2;color:white;padding:8px 15px;border-radius:20px" onclick="addPost();show('feed')">شیئر کریں</button></div>
-<div class="card"><b>👤 <span id="createName">علی خان</span></b><br><input id="postText2" placeholder="یہاں کچھ لکھیں..." style="border:none"><br><div>📷 تصویر &nbsp; 🎥 ویڈیو &nbsp; 📍 مقام</div></div>
+<div class="topBar"><span onclick="show('feed')">✖️</span><b>Create Post</b><button style="border:none;background:#1877f2;color:white;padding:8px 15px;border-radius:20px" onclick="addPost();show('feed')">Share</button></div>
+<div class="card"><b>👤 <span id="createName">You</span></b><br><input id="postText2" placeholder="Write here... / یہاں لکھیں..." style="border:none"></div>
 </div>
 
-<!-- SETTINGS -->
 <div id="settings" class="screen">
-<div class="topBar"><span onclick="show('feed')">‹</span><b>ترتیبات</b></div>
-<div class="card" style="display:flex;gap:10px;align-items:center"><img class="avatar" src="https://i.pravatar.cc/100?img=12"><div><b id="settingName">علی خان</b><br><small>@AliKhan</small></div></div>
-<div class="settingRow"><span>👤 اکاؤنٹ کی معلومات</span><span>›</span></div>
-<div class="settingRow"><span>🔒 رازداری اور سیکیورٹی</span><span>›</span></div>
-<div class="settingRow"><span>🔔 اطلاعات</span><span>›</span></div>
-<div class="settingRow"><span>🌍 زبان - اردو</span><span>›</span></div>
-<div class="settingRow"><span>❓ مدد و معاونت</span><span>›</span></div>
-<button class="btn" style="background:#ff2e3e" onclick="show('login')">لاگ آؤٹ کریں</button>
+<div class="topBar"><span onclick="show('feed')">‹</span><b>Settings / ترتیبات</b></div>
+<div class="card"><b id="settingName">You</b><br><small id="settingEmail">@user</small></div>
+<div style="background:white;margin:8px 12px;padding:14px;border-radius:12px">🌍 Language - <button class="langBtn" onclick="setLang('ur')">اردو</button> <button class="langBtn" onclick="setLang('en')">English</button></div>
+<button class="btn" style="background:#ff2e3e" onclick="logout()">Logout / لاگ آؤٹ</button>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottomNav" id="bottomNav" style="display:none">
-<button onclick="show('feed')" id="nav-feed">🏠<br>ہوم</button>
-<button onclick="show('friends')" id="nav-friends">👥<br>دوست</button>
-<button onclick="show('create')" id="nav-create" style="background:#1877f2;color:white;border-radius:50%;width:50px;height:50px;margin-top:-20px;font-size:20px">+</button>
-<button onclick="show('videos')" id="nav-videos">🎥<br>ویڈیو</button>
-<button onclick="show('noti')" id="nav-noti">🔔<br>نوٹیفکیشن</button>
-<button onclick="show('chat')" id="nav-chat">💬<br>چیٹ</button>
+<button onclick="show('feed')">🏠<br>Home</button>
+<button onclick="show('friends')">👥<br>Friends</button>
+<button onclick="show('create')" style="background:#1877f2;color:white;border-radius:50%;width:52px;height:52px;margin-top:-28px;font-size:22px">+</button>
+<button onclick="show('videos')">🎥<br>Videos</button>
+<button onclick="show('noti')">🔔<br>Alerts</button>
+<button onclick="show('chat')">💬<br>Chat</button>
 </div>
 
-<script>
-var currentUser="علی خان";
-var selectedMedia=null, selectedType="";
-var friends=[
-{name:"عائشہ خان", mutual:"12 مشترکہ دوست", img:32},
-{name:"فہد علی", mutual:"8 مشترکہ دوست", img:13},
-{name:"سارا احمد", mutual:"15 مشترکہ دوست", img:47},
-{name:"عثمان قریشی", mutual:"10 مشترکہ دوست", img:59},
-{name:"مریم جاوید", mutual:"7 مشترکہ دوست", img:44}
-];
-function show(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-var showNav=['feed','friends','videos','noti','settings','profile','chat','create'].includes(id);
-document.getElementById('bottomNav').style.display=showNav?'flex':'none';
-document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.remove('active'));
-var nav=document.getElementById('nav-'+id); if(nav) nav.classList.add('active');
-window.scrollTo(0,0);
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, orderBy, query, updateDoc, doc, arrayUnion, increment, setDoc, getDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
+  authDomain: "vynkapp-10da0.firebaseapp.com",
+  projectId: "vynkapp-10da0",
+  storageBucket: "vynkapp-10da0.firebasestorage.app",
+  messagingSenderId: "85561384540",
+  appId: "1:85561384540:web:cf91923827a801b31d9099",
+  measurementId: "G-W4CLNK8PTS"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let currentUserName = "You", currentUid = "", currentEmail="";
+let selectedMedia=null, selectedType="", allUsers=[], allPosts=[];
+let chatWithId="", chatWithName="";
+let currentLang = localStorage.getItem('vynk_lang')||'ur';
+window.setLang = (lang)=>{
+  currentLang=lang; localStorage.setItem('vynk_lang',lang);
+  document.body.style.direction = lang=='en' ? 'ltr' : 'rtl';
+  document.querySelectorAll('[data-ur]').forEach(el=>{ el.innerText = lang=='en' ? el.getAttribute('data-en') : el.getAttribute('data-ur'); });
 }
-document.getElementById('mediaFile').addEventListener('change', function(e){
-var f=e.target.files[0]; if(!f) return;
-var r=new FileReader(); r.onload=function(ev){ selectedMedia=ev.target.result; selectedType=f.type.indexOf('video')!==-1?'video':'image'; document.getElementById('preview').innerText='✅ فائل لگ گئی: '+f.name; }; r.readAsDataURL(f);
+setLang(currentLang);
+window.show = (id)=>{
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('bottomNav').style.display = ['feed','friends','videos','noti','settings','profile','chat','create','search','chatRoom'].includes(id)?'flex':'none';
+  if(id=='chatRoom') document.getElementById('bottomNav').style.display='none';
+  window.scrollTo(0,0);
+}
+setPersistence(auth, browserLocalPersistence);
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUid=user.uid;
+    try{
+      let snap=await getDoc(doc(db,"users",user.uid));
+      if(snap.exists()){ currentUserName=snap.data().name; currentEmail=snap.data().email; setUserUI(currentUserName, currentEmail); }
+      else { currentUserName=user.email.split('@')[0]; setUserUI(currentUserName, user.email); }
+    }catch(e){ setUserUI(user.email, user.email); }
+    show('feed'); listenPosts(); listenUsers(); listenNoti(); listenStories();
+  } else { show('login'); }
 });
-function doSignup(){
-var n=document.getElementById('lName').value;
-if(!n){ document.getElementById('loginMsg').innerText='پہلے اپنا نام لکھیں!'; return; }
-currentUser=n; localStorage.setItem('vynk_user', JSON.stringify({name:n,email:document.getElementById('lEmail').value,pass:document.getElementById('lPass').value}));
-document.getElementById('profileName').innerText=n; document.getElementById('settingName').innerText=n; document.getElementById('createName').innerText=n;
-show('feed'); renderFriends(); showPosts();
+window.doSignup = async ()=>{
+  let name=document.getElementById('lName').value;
+  let email=document.getElementById('lEmail').value;
+  let pass=document.getElementById('lPass').value;
+  if(!name){ document.getElementById('loginMsg').innerText='Write your name! / نام لکھیں!'; return; }
+  if(!email.includes('@')){ document.getElementById('loginMsg').innerText='Write correct email!'; return; }
+  if(pass.length<6){ document.getElementById('loginMsg').innerText='Password 6+ !'; return; }
+  try{
+    let res=await createUserWithEmailAndPassword(auth,email,pass);
+    currentUserName=name; currentUid=res.user.uid; currentEmail=email;
+    await setDoc(doc(db,"users",res.user.uid),{name:name,email:email,time:Date.now()});
+    setUserUI(name,email); show('feed'); listenPosts(); listenUsers(); listenNoti(); listenStories();
+  }catch(e){ document.getElementById('loginMsg').innerText="Error: "+e.message; }
 }
-function doLogin(){
-var n=document.getElementById('lName').value||"علی خان";
-var e=document.getElementById('lEmail').value;
-var p=document.getElementById('lPass').value;
-var saved=JSON.parse(localStorage.getItem('vynk_user')||'null');
-if(saved && e && saved.email && saved.email!==e){ document.getElementById('loginMsg').innerText='یہ ای میل پہلے سے نہیں ہے، پہلے رجسٹر کریں'; return; }
-currentUser=n; document.getElementById('profileName').innerText=n; document.getElementById('settingName').innerText=n; document.getElementById('createName').innerText=n;
-if(!saved){ localStorage.setItem('vynk_user', JSON.stringify({name:n,email:e,pass:p})); }
-show('feed'); renderFriends(); showPosts();
+window.doLogin = async ()=>{
+  let email=document.getElementById('lEmail').value;
+  let pass=document.getElementById('lPass').value;
+  try{
+    let res=await signInWithEmailAndPassword(auth,email,pass);
+    currentUid=res.user.uid;
+    let snap=await getDoc(doc(db,"users",res.user.uid));
+    if(snap.exists()){ currentUserName=snap.data().name; currentEmail=snap.data().email; setUserUI(currentUserName, currentEmail); }
+    show('feed'); listenPosts(); listenUsers(); listenNoti(); listenStories();
+  }catch(e){ document.getElementById('loginMsg').innerText="Error: "+e.message; }
 }
-function addPost(){
-var t=document.getElementById('postText').value||document.getElementById('postText2').value;
-if(!t && !selectedMedia){ alert('کچھ لکھیں یا فوٹو / ویڈیو لگائیں!'); return; }
-var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
-posts.unshift({name:currentUser,text:t,media:selectedMedia,type:selectedType,likes:0,liked:false,comments:[]});
-localStorage.setItem('vynk_posts_final', JSON.stringify(posts));
-document.getElementById('postText').value=''; document.getElementById('postText2').value=''; selectedMedia=null; document.getElementById('preview').innerText='';
-showPosts();
+function setUserUI(name,email){
+  document.getElementById('profileName').innerText=name;
+  document.getElementById('profileEmail').innerText=email;
+  document.getElementById('settingName').innerText=name;
+  document.getElementById('settingEmail').innerText=email;
+  document.getElementById('createName').innerText=name;
+  document.getElementById('userNameTop').innerText=name;
+  let initial = name.charAt(0).toUpperCase();
+  document.getElementById('myAvatar').innerText=initial;
+  document.getElementById('profileAvatar').innerText=initial;
 }
-function likePost(i){
-var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
-posts[i].liked=!posts[i].liked; posts[i].likes+=posts[i].liked?1:-1;
-localStorage.setItem('vynk_posts_final', JSON.stringify(posts)); showPosts();
+window.logout = async ()=>{ await signOut(auth); show('login'); }
+document.getElementById('mediaFile').addEventListener('change', (e)=>{
+  let f=e.target.files[0]; if(!f) return;
+  let r=new FileReader(); r.onload=(ev)=>{ selectedMedia=ev.target.result; selectedType=f.type.includes('video')?'video':'image'; document.getElementById('preview').innerText='✅ '+f.name; }; r.readAsDataURL(f);
+});
+window.addPost = async ()=>{
+  let t=document.getElementById('postText').value||document.getElementById('postText2').value;
+  if(!t && !selectedMedia){ alert('Write something! / کچھ لکھیں!'); return; }
+  await addDoc(collection(db,"posts"),{name:currentUserName,uid:currentUid,text:t,media:selectedMedia||"",type:selectedType||"",likes:0,comments:[],shares:0,time:Date.now()});
+  document.getElementById('postText').value=''; document.getElementById('postText2').value=''; selectedMedia=null; document.getElementById('preview').innerText='';
+  alert('Post Sent ✅ / پوسٹ چلی گئی ✅');
 }
-function addComment(i){
-var inp=document.getElementById('cmt'+i); if(!inp.value) return;
-var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
-posts[i].comments.push(currentUser+': '+inp.value);
-localStorage.setItem('vynk_posts_final', JSON.stringify(posts)); showPosts();
+window.addStory = async ()=>{
+  let t=prompt('Story mein kya likhna hai? / What to write in story?');
+  if(!t) return;
+  await addDoc(collection(db,"stories"),{name:currentUserName,uid:currentUid,text:t,time:Date.now()});
+  alert('Story Lag Gayi ✅');
 }
-function showPosts(){
-var posts=JSON.parse(localStorage.getItem('vynk_posts_final')||'[]');
-if(posts.length==0){
-posts=[{name:"سارہ خان",text:"زندگی خوبصورت ہے ❤️",media:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600",type:"image",likes:12,liked:false,comments:["عائشہ: بہت خوب!"]}];
-localStorage.setItem('vynk_posts_final', JSON.stringify(posts));
+function listenStories(){
+  onSnapshot(query(collection(db,"stories"),orderBy("time","desc")),(snap)=>{
+    let html='';
+    snap.forEach(d=>{ let s=d.data(); html+=`<div style="text-align:center;min-width:65px" onclick="alert('${s.name}: ${s.text}')"><div class="storyAv"><div>${s.name.charAt(0)}</div></div><small>${s.name}</small></div>`; });
+    document.getElementById('storyList').innerHTML=html;
+  });
 }
-var html='';
-for(var i=0;i<posts.length;i++){ var p=posts[i]; var m=''; if(p.media && p.type=='image') m='<img class="postImg" src="'+p.media+'">'; if(p.media && p.type=='video') m='<video class="postImg" controls src="'+p.media+'"></video>'; var cm=''; for(var j=0;j<p.comments.length;j++) cm+='<div class="cmt">💬 '+p.comments[j]+'</div>'; html+='<div class="card"><b>👤 '+p.name+'</b><p style="margin:8px 0">'+(p.text||'')+'</p>'+m+'<div style="font-size:13px;color:#666">❤️ '+p.likes+' • '+p.comments.length+' کمنٹس</div><div class="actionRow"><button class="'+(p.liked?'active':'')+'" onclick="likePost('+i+')">❤️ لائک ('+p.likes+')</button><button onclick="document.getElementById(\'cmt'+i+'\').focus()">💬 کمنٹ</button><button>↗️ شیئر</button></div>'+cm+'<div style="display:flex;gap:5px;margin-top:8px"><input id="cmt'+i+'" placeholder="کمنٹ لکھیں..." style="margin:0"><button style="border:none;background:#1877f2;color:white;padding:8px 12px;border-radius:20px" onclick="addComment('+i+')">بھیجیں</button></div></div>'; }
-document.getElementById('posts').innerHTML=html;
+function listenPosts(){
+  let q=query(collection(db,"posts"),orderBy("time","desc"));
+  onSnapshot(q,(snap)=>{
+    allPosts=[]; snap.forEach(d=>allPosts.push({id:d.id,...d.data()}));
+    document.getElementById('myPostCount').innerText=snap.size;
+    let html='', videoHtml='', myHtml='';
+    allPosts.forEach(p=>{
+      let initial = p.name ? p.name.charAt(0).toUpperCase() : 'U';
+      let m=''; if(p.media && p.type=='image') m=`<img class="postImg" src="${p.media}">`; if(p.media && p.type=='video') m=`<video class="postImg" controls src="${p.media}"></video>`;
+      let cm=(p.comments||[]).map(c=>`<div class="cmt">💬 ${c}</div>`).join('');
+      let card=`<div class="card"><div style="display:flex;gap:10px;align-items:center"><div class="avatar">${initial}</div><b>${p.name}</b></div><p style="margin:8px 0">${p.text||''}</p>${m}<div style="font-size:13px;color:#666">❤️ ${p.likes} Likes • ${(p.comments||[]).length} Comments • ${p.shares||0} Shares</div><div class="actionRow"><button onclick="likePost('${p.id}','${p.uid}')">❤️ Like</button><button onclick="document.getElementById('cmt-${p.id}').focus()">💬 Comment</button><button onclick="sharePost('${p.id}')">↗️ Share</button></div>${cm}<div style="display:flex;gap:5px;margin-top:8px"><input id="cmt-${p.id}" placeholder="Comment..." style="margin:0"><button style="border:none;background:#1877f2;color:white;padding:8px 12px;border-radius:20px" onclick="addComment('${p.id}','${p.uid}')">Send</button></div></div>`;
+      html+=card;
+      if(p.type=='video') videoHtml+=card;
+      if(p.uid==currentUid) myHtml+=card;
+    });
+    document.getElementById('posts').innerHTML=html||`<div class="emptyBox"><h3>No posts yet</h3><p>Only real posts will show. No fake.</p></div>`;
+    document.getElementById('videoList').innerHTML=videoHtml;
+    document.getElementById('noVideo').style.display=videoHtml?'none':'block';
+    document.getElementById('myPosts').innerHTML=myHtml||`<div class="emptyBox">You have no posts yet</div>`;
+  });
 }
-function renderFriends(){
-var h=''; for(var i=0;i<friends.length;i++){ h+='<div class="friendRow"><img class="avatar" src="https://i.pravatar.cc/100?img='+friends[i].img+'"><div style="flex:1"><b>'+friends[i].name+'</b><br><small>'+friends[i].mutual+'</small></div><button style="background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:20px" onclick="this.innerText=\'دوست بن گئے ✅\';this.style.background=\'#2ed573\'">دوست بنائیں</button></div>'; } document.getElementById('friendList').innerHTML=h;
+window.likePost=async(id,ownerUid)=>{
+  await updateDoc(doc(db,"posts",id),{likes: increment(1)});
+  if(ownerUid!=currentUid) await addDoc(collection(db,"notifications"),{to:ownerUid,from:currentUserName,text:currentUserName+' liked your post ❤️',time:Date.now()});
 }
-function sendChat(){
-var v=document.getElementById('chatInput').value; if(!v) return;
-document.getElementById('chatMsgs').innerHTML+='<div class="cmt" style="background:#dbeafe">تم: '+v+'</div>'; document.getElementById('chatInput').value='';
+window.addComment=async(id,ownerUid)=>{
+  let v=document.getElementById('cmt-'+id).value; if(!v) return;
+  await updateDoc(doc(db,"posts",id),{comments: arrayUnion(currentUserName+': '+v)});
+  if(ownerUid!=currentUid) await addDoc(collection(db,"notifications"),{to:ownerUid,from:currentUserName,text:currentUserName+' commented: '+v,time:Date.now()});
 }
-renderFriends(); showPosts();
-</script>
-</body>
-  </html>
+window.sharePost=async(id)=>{
+  await updateDoc(doc(db,"posts",id),{shares: increment(1)});
+  alert('Shared ✅ / شیئر ہو گئی ✅');
+}
+function listenUsers(){
+  onSnapshot(collection(db,"users"),(snap)=>{
+    allUsers=[]; snap.forEach(d=>{ if(d.id!==currentUid && d.data().name) allUsers.push({id:d.id,...d.data()}); });
+    document.getElementById('realUserCount').innerText=snap.size;
+    document.getElementById('myFriendCount').innerText=allUsers.length;
+    let html='';
+    allUsers.forEach(u=>{
+      let initial = u.name.charAt(0).toUpperCase();
+      html+=`<div class="friendRow"><div class="avatar">${initial}</div><div style="flex:1"><b>${u.name}</b><br><small>${u.email}</small></div><button style="background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:20px" onclick="openChat('${u.id}','${u.name}')">💬 Chat</button> <button style="background:#e7f3ff;color:#1877f2;border:1px solid #1877f2;padding:8px 12px;border-radius:20px" onclick="this.innerText='Friend ✅';this.style.background='#2ed573';this.style.color='white'">Add Friend</button></div>`;
+    });
+    document.getElementById('friendList').innerHTML=html;
+    document.getElementById('noFriends').style.display=allUsers.length==0?'block':'none';
+    let chatHtml='';
+    allUsers.forEach(u=>{
+      let initial=u.name.charAt(0).toUpperCase();
+      chatHtml+=`<div class="friendRow" onclick="openChat('${u.id}','${u.name}')"><div class="avatar">${initial}</div><div style="flex:1"><b>${u.name}</b><br><small>Tap to chat</small></div><span>›</span></div>`;
+    });
+    document.getElementBy
