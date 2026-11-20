@@ -3,117 +3,76 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VynkApp</title>
-<link rel="icon" href="IMG-20261117-WA9690.jpg">
-<link rel="apple-touch-icon" href="IMG-20261117-WA9690.jpg">
-<link rel="manifest" href="manifest.json">
 <style>
-body{margin:0;background:#ffecec;font-family:sans-serif}
-input{width:90%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ddd}
-.btn{width:95%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+body{margin:0;background:#ffecec;font-family:sans-serif;text-align:center}
+input{width:90%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px}
+.btn{width:95%;padding:12px;margin:6px 0;background:#ff4757;color:white;border:none;border-radius:8px;font-size:16px}
+.card{background:white;margin:10px;padding:15px;border-radius:12px;text-align:left}
 </style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
-<div id="loginBox" style="background:#e60000;color:white;padding:15px;text-align:center;min-height:100vh">
-  <h1 style="margin-top:40px">❤️ VynkApp</h1>
-  
-  <div style="background:white;color:black;margin:20px 10px;padding:20px;border-radius:15px">
-    <h3>Login / Sign Up</h3>
-    <input id="email" type="email" placeholder="Email likho">
-    <input id="password" type="password" placeholder="Password likho">
-    <button class="btn" style="background:#e60000;color:white" onclick="signup()">Sign Up - Naya Account</button>
-    <button class="btn" style="background:#111;color:white" onclick="login()">Login</button>
-    <button class="btn" style="background:#eee" onclick="googleLogin()">Google se Login</button>
-    <p id="msg" style="color:red"></p>
-  </div>
+<div id="loginBox" style="background:#ff4757;color:white;padding:20px;min-height:100vh">
+<h1 style="margin-top:40px">❤️ Vynk</h1>
+<p>Apne Doston Se Judo</p>
+<div style="background:white;color:black;padding:20px;border-radius:15px">
+<h3>Login / Sign Up</h3>
+<input id="name" placeholder="Apna Naam Likho">
+<input id="email" placeholder="Email / Mobile Number">
+<input id="pass" type="password" placeholder="Password">
+<button class="btn" onclick="signup()">Sign Up - Naya Account</button>
+<button class="btn" style="background:#2ed573" onclick="login()">Login - Andar Jao</button>
+<p id="msg" style="color:red"></p>
 </div>
-
-<!-- TUMHARI APP - LOGIN KE BAAD KHULEGI -->
-<div id="mainApp" style="display:none">
-  <div style="background:#e60000; color:white; padding:15px; text-align:center;">
-    <h1 style="margin:0;">❤️ VynkApp</h1>
-    <p style="margin:0; font-size:12px;">Meri Apni Facebook</p>
-    <p id="userEmail" style="font-size:12px;margin:5px 0"></p>
-    <button onclick="logout()" style="background:white;color:#e60000;border:none;padding:5px 15px;border-radius:20px">Logout</button>
-  </div>
-
-  <div style="display:flex; justify-content:space-around; background:white; padding:12px; margin:10px; border-radius:10px;">
-    <b>🏠 Home</b><span>👥 Friends</span><span>🔔 Noti</span><span>👤 Profile</span>
-  </div>
-
-  <div style="background:white; margin:10px; padding:10px; border-radius:15px; text-align:center;">
-    <img src="https://picsum.photos/600/200?random=10" style="width:100%; height:140px; object-fit:cover; border-radius:10px;">
-    <img src="https://picsum.photos/200/200?random=11" style="width:90px; height:90px; border-radius:50%; border:3px solid red; margin-top:-45px;">
-    <h2 style="margin:5px;">Mera Naam</h2>
-    <button style="background:#e60000; color:white; border:none; padding:8px 20px; border-radius:20px;">+ Add Friend</button>
-  </div>
-
-  <div style="background:white; margin:10px; padding:10px; border-radius:15px;">
-    <p><b>❤️ VynkApp</b> • Abhi Abhi</p>
-    <img src="https://picsum.photos/500/300?random=20" style="width:100%; border-radius:10px;">
-    <p>Meri pehli post! Kaisi lagi?</p>
-    <div style="display:flex; justify-content:space-around; border-top:1px solid #eee; padding-top:8px;">
-      <span>❤️ Like</span><span>💬 Comment</span><span>↗️ Share</span>
-    </div>
-  </div>
 </div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
-  authDomain: "vynkapp-1da0.firebaseapp.com",
-  projectId: "vynkapp-1da0",
-  storageBucket: "vynkapp-1da0.firebasestorage.app",
-  messagingSenderId: "85561384540",
-  appId: "1:85561384540:web:cf91923827a801b31d9099",
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-async function saveUser(user){
-  await setDoc(doc(db, "users", user.uid), {
-    email: user.email,
-    name: user.displayName || "Mera Naam",
-    createdAt: new Date().toISOString()
-  });
+<div id="feedBox" style="display:none;padding:15px">
+<h2>❤️ Vynk Feed</h2>
+<p id="welcome"></p>
+<input id="postText" placeholder="Kuch likho...">
+<button class="btn" onclick="addPost()">Post Karo</button>
+<div id="posts"></div>
+<button class="btn" style="background:#57606f" onclick="logout()">Logout</button>
+</div>
+<script>
+function signup(){
+var n=document.getElementById('name').value;
+var e=document.getElementById('email').value;
+var p=document.getElementById('pass').value;
+if(!n||!e||!p){document.getElementById('msg').innerText='Sab khane bharo!';return;}
+localStorage.setItem('vynk_user', JSON.stringify({name:n,email:e,pass:p}));
+alert('Account Ban Gaya! Ab Login Dabao');
 }
-function showApp(user){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("mainApp").style.display = "block";
-  document.getElementById("userEmail").innerText = "Welcome: " + user.email;
+function login(){
+var e=document.getElementById('email').value;
+var p=document.getElementById('pass').value;
+var saved=JSON.parse(localStorage.getItem('vynk_user')||'null');
+if(saved && saved.email==e && saved.pass==p){
+document.getElementById('loginBox').style.display='none';
+document.getElementById('feedBox').style.display='block';
+document.getElementById('welcome').innerText='Welcome, '+saved.name+'!';
+showPosts();
+} else {
+document.getElementById('msg').innerText='Email ya Password Ghalat Hai. Pehle Sign Up Karo.';
 }
-onAuthStateChanged(auth, (user)=>{ if(user) showApp(user); });
-
-window.signup = async () => {
-  try{
-    const e = document.getElementById("email").value;
-    const p = document.getElementById("password").value;
-    const res = await createUserWithEmailAndPassword(auth, e, p);
-    await saveUser(res.user); showApp(res.user);
-  }catch(err){ document.getElementById("msg").innerText = err.message; }
 }
-window.login = async () => {
-  try{
-    const e = document.getElementById("email").value;
-    const p = document.getElementById("password").value;
-    const res = await signInWithEmailAndPassword(auth, e, p);
-    await saveUser(res.user); showApp(res.user);
-  }catch(err){ document.getElementById("msg").innerText = err.message; }
+function addPost(){
+var t=document.getElementById('postText').value;
+if(!t) return;
+var posts=JSON.parse(localStorage.getItem('vynk_posts')||'[]');
+posts.unshift(t);
+localStorage.setItem('vynk_posts', JSON.stringify(posts));
+document.getElementById('postText').value='';
+showPosts();
 }
-window.googleLogin = async () => {
-  try{
-    const res = await signInWithPopup(auth, provider);
-    await saveUser(res.user); showApp(res.user);
-  }catch(err){ document.getElementById("msg").innerText = err.message; }
+function showPosts(){
+var posts=JSON.parse(localStorage.getItem('vynk_posts')||'[]');
+var html='';
+for(var i=0;i<posts.length;i++){ html+='<div class="card">'+posts[i]+'</div>'; }
+document.getElementById('posts').innerHTML=html || '<p>Abhi koi post nahi hai.</p>';
 }
-window.logout = async () => { await signOut(auth); location.reload(); }
+function logout(){
+document.getElementById('feedBox').style.display='none';
+document.getElementById('loginBox').style.display='block';
+}
 </script>
 </body>
-      </html>
+                  </html>
