@@ -1,985 +1,237 @@
 <!DOCTYPE html>
-<html>
+<html lang="ur">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Vynk</title>
 <style>
-*{margin:0;padding:0}
-body{
-background:#f0f2f5;
-font-family:sans-serif
-}
-.screen{display:none}
-.screen.active{
-display:block;
-padding-bottom:80px
-}
-input{
-width:90%;
-padding:12px;
-margin:8px auto;
-display:block;
-border:1px solid #ddd;
-border-radius:12px
-}
-.btn{
-width:90%;
-padding:13px;
-margin:8px auto;
-display:block;
-border:none;
-border-radius:25px;
-color:white;
-background:#1877f2;
-font-weight:bold
-}
-.top{
-background:white;
-padding:12px;
-display:flex;
-justify-content:space-between;
-position:sticky;
-top:0
-}
-.logo{
-font-size:24px;
-font-weight:900;
-color:#1877f2
-}
-.card{
-background:white;
-margin:10px;
-padding:12px;
-border-radius:14px
-}
-.av{
-width:42px;
-height:42px;
-border-radius:50%;
-background:#1877f2;
-color:white;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold
-}
-.pimg{
-width:100%;
-border-radius:12px;
-margin-top:8px
-}
-.row{
-display:flex;
-justify-content:space-around;
-border-top:1px solid #eee;
-margin-top:8px;
-padding-top:8px
-}
-.row button{
-border:none;
-background:none
-}
-.nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:8px;
-border-top:1px solid #ddd
-}
-.nav button{
-border:none;
-background:none
-}
-.cmt{
-background:#f0f2f5;
-padding:8px;
-border-radius:10px;
-margin-top:6px
-}
-.frow{
-display:flex;
-gap:10px;
-background:white;
-margin:8px;
-padding:10px;
-border-radius:12px;
-align-items:center
-}
-.box{
-background:white;
-margin:20px;
-padding:25px;
-border-radius:14px;
-text-align:center;
-color:#666
-}
-.chat{
-background:#f0f2f5;
-padding:10px;
-border-radius:12px;
-margin:6px 0;
-max-width:85%
-}
-.mine{
-background:#1877f2;
-color:white;
-margin-left:auto
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0f0f0f;color:#fff;padding-bottom:70px}
+.top{position:sticky;top:0;background:#000;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;z-index:10;border-bottom:1px solid #222}
+.logo{font-size:26px;font-weight:900;color:#00ff88}
+.top button{background:#222;color:#fff;border:0;padding:8px 14px;border-radius:20px}
+.post-box{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}
+.post-box input{width:100%;background:#222;border:0;padding:12px;border-radius:20px;color:#fff;outline:none}
+.post-box button{margin-top:10px;background:#00ff88;color:#000;border:0;padding:10px 18px;border-radius:20px;font-weight:700;width:100%}
+.card{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}
+.card .head{display:flex;justify-content:space-between;align-items:center}
+.card b{color:#00ff88}
+.card p{margin:10px 0;line-height:1.5;font-size:15px}
+.followBtn{background:#00ff88;color:#000;border:0;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px}
+.followBtn.off{background:#222;color:#fff}
+.actions{display:flex;justify-content:space-between;margin-top:10px;border-top:1px solid #333;padding-top:10px}
+.actions button{background:none;border:0;color:#ccc;font-size:14px}
+.actions button.liked{color:#ff3b5c}
+.comments{margin-top:10px}
+.comments input{width:100%;background:#222;border:0;padding:10px;border-radius:20px;color:#fff;outline:none;margin-top:8px}
+.commentItem{background:#222;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:13px}
+.login{padding:30px 20px;text-align:center}
+.login h1{font-size:44px;color:#00ff88;margin-bottom:10px}
+.login input{width:100%;padding:14px;margin:8px 0;border-radius:10px;border:0;background:#222;color:#fff;outline:none}
+.login button{width:100%;padding:14px;background:#00ff88;border:0;border-radius:10px;font-weight:800;margin-top:10px}
+.hidden{display:none}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#000;display:flex;justify-content:space-around;padding:12px;border-top:1px solid #222;z-index:20}
+.nav button{background:none;border:0;color:#fff;font-size:14px}
+.profileBox{background:#1a1a1a;margin:10px;padding:15px;border-radius:12px;text-align:center}
+.profileBox h2{color:#00ff88}
 </style>
 </head>
 <body>
 
-<div id="splash"
-class="screen active"
-style="background:#1877f2;
-color:white;
-text-align:center;
-padding-top:110px">
-<h1 style="font-size:60px">
-Vynk
-</h1>
-<p style="margin-top:12px">
-مکمل ایپ
-</p>
-<button class="btn"
-style="background:white;
-color:#1877f2;
-margin-top:30px"
-onclick="show('login')">
-شروع کریں
-</button>
+<!-- LOGIN -->
+<div id="loginScreen" class="login">
+  <h1>Vynk</h1>
+  <p style="color:#aaa;margin-bottom:15px">Apni Duniya, Apne Log</p>
+  <input id="nameInput" placeholder="Apna Naam">
+  <input id="emailInput" placeholder="Email">
+  <input id="passInput" type="password" placeholder="Password">
+  <button onclick="doLogin()">Login / Account Banao</button>
+  <p id="loginMsg" style="margin-top:10px;color:#ff5555"></p>
 </div>
 
-<div id="login"
-class="screen"
-style="background:white;
-padding:30px 10px">
-<h2 class="logo"
-style="text-align:center">
-Vynk
-</h2>
-<h3 style="text-align:center;
-margin:15px">
-اکاؤنٹ بنائیں
-</h3>
-<input id="lName"
-placeholder="نام لکھیں">
-<input id="lEmail"
-placeholder="ای میل">
-<input id="lPass"
-type="password"
-placeholder="پاس ورڈ">
-<button class="btn"
-onclick="doSignup()">
-نیا اکاؤنٹ بنائیں
-</button>
-<button class="btn"
-style="background:#42b72a"
-onclick="doLogin()">
-لاگ ان کریں
-</button>
-<p id="loginMsg"
-style="text-align:center;
-color:red"></p>
+<!-- HOME -->
+<div id="homeScreen" class="hidden">
+  <div class="top">
+    <div class="logo">Vynk</div>
+    <button onclick="doLogout()">Logout</button>
+  </div>
+
+  <div id="profileArea"></div>
+
+  <div class="post-box">
+    <input id="postText" placeholder="Kya soch rahe ho?">
+    <button onclick="addPost()">Post Karo</button>
+  </div>
+
+  <div id="feed"></div>
 </div>
 
-<div id="feed"
-class="screen">
-<div class="top">
-<div class="logo">Vynk</div>
-<div>
-<span onclick="show('search')">
-🔍
-</span>
-<span onclick="show('noti')">
-🔔
-</span>
-<b id="userNameTop"
-onclick="show('profile')">
-👤
-</b>
-</div>
-</div>
-<div class="card">
-<div style="display:flex;gap:10px">
-<div class="av"
-id="myAvatar">Y</div>
-<input id="postText"
-placeholder="کیا سوچ رہے ہو؟"
-style="margin:0;flex:1">
-</div>
-<label style="background:#e7f3ff;
-color:#1877f2;
-padding:10px;
-border-radius:20px;
-display:block;
-text-align:center;
-margin-top:10px">
-📷 تصویر / 🎥 ویڈیو
-<input type="file"
-id="mediaFile"
-accept="image/*,video/*"
-style="display:none">
-</label>
-<p id="preview"
-style="text-align:center;
-color:green;
-font-size:12px"></p>
-<button class="btn"
-style="width:100%"
-onclick="addPost()">
-پوسٹ کریں
-</button>
-</div>
-<div id="posts"></div>
-</div>
-
-<div id="search"
-class="screen">
-<div class="top">
-<span onclick="show('feed')">
-‹
-</span>
-<b>تلاش</b>
-</div>
-<input id="searchInput"
-placeholder="دوست کا نام..."
-oninput="doSearch()">
-<div id="searchResult"></div>
-</div>
-
-<div id="profile"
-class="screen">
-<div style="background:#1877f2;
-color:white;
-padding:20px;
-text-align:center">
-<div class="av"
-id="profileAvatar"
-style="width:80px;
-height:80px;
-font-size:35px;
-margin:0 auto">Y</div>
-<h2 id="profileName">You</h2>
-<p id="profileEmail">@user</p>
-</div>
-<div class="card">
-<b>میری پوسٹیں</b>
-</div>
-<div id="myPosts"></div>
-</div>
-
-<div id="friends"
-class="screen">
-<div class="top">
-<b>دوست</b>
-</div>
-<div id="friendList"></div>
-<div id="noFriends"
-class="box">
-<h3>ابھی کوئی دوست نہیں</h3>
-<p>جب کوئی اکاؤنٹ بنائے گا
-تب آئے گا</p>
-</div>
-</div>
-
-<div id="chat"
-class="screen">
-<div class="top">
-<b>چیٹ</b>
-</div>
-<div id="chatList"></div>
-</div>
-
-<div id="chatRoom"
-class="screen">
-<div class="top">
-<span onclick="show('chat')">
-‹ Back
-</span>
-<b id="chatWithName">
-Chat
-</b>
-</div>
-<div id="chatMessages"
-style="padding:10px"></div>
-<div style="position:fixed;
-bottom:60px;
-left:0;
-right:0;
-background:white;
-padding:10px;
-display:flex;
-gap:5px">
-<input id="chatInput"
-placeholder="میسج لکھو..."
-style="margin:0;flex:1">
-<button
-style="background:#1877f2;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:20px"
-onclick="sendMessage()">
-Send
-</button>
-</div>
-</div>
-
-<div id="videos"
-class="screen">
-<div class="top">
-<b>ویڈیوز</b>
-</div>
-<div id="videoList"></div>
-<div id="noVideo"
-class="box">
-<h3>No Videos Yet</h3>
-</div>
-</div>
-
-<div id="noti"
-class="screen">
-<div class="top">
-<b>نوٹیفکیشن</b>
-</div>
-<div id="notiList"></div>
-</div>
-
-<div id="settings"
-class="screen">
-<div class="top">
-<span onclick="show('feed')">
-‹
-</span>
-<b>ترتیبات</b>
-</div>
-<div class="card">
-<b id="settingName">You</b>
-<br>
-<small id="settingEmail">
-@user
-</small>
-</div>
-<button class="btn"
-style="background:red"
-onclick="logout()">
-لاگ آؤٹ
-</button>
-</div>
-
-<div class="nav"
-id="bottomNav"
-style="display:none">
-<button onclick="show('feed')">
-🏠<br>Home
-</button>
-<button onclick="show('friends')">
-👥<br>Friends
-</button>
-<button onclick="show('videos')">
-🎥<br>Videos
-</button>
-<button onclick="show('noti')">
-🔔<br>Alerts
-</button>
-<button onclick="show('chat')">
-💬<br>Chat
-</button>
+<div class="nav hidden" id="bottomNav">
+  <button onclick="showHome()">🏠 Home</button>
+  <button onclick="showProfile()">👤 Profile</button>
+  <button onclick="showHome()">💬 Chat</button>
+  <button onclick="doLogout()">🚪 Logout</button>
 </div>
 
 <script type="module">
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { createUserWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { signOut }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { collection }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { addDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { onSnapshot }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { orderBy }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { query }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { updateDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { doc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { arrayUnion }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { increment }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { setDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { where }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
-authDomain: "vynkapp-10da0.firebaseapp.com",
-projectId: "vynkapp-10da0",
-storageBucket: "vynkapp-10da0.firebasestorage.app",
-messagingSenderId: "85561384540",
-appId: "1:85561384540:web:cf91923827a801b31d9099"
+  apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
+  authDomain: "vynkapp-10da0.firebaseapp.com",
+  projectId: "vynkapp-10da0",
+  storageBucket: "vynkapp-10da0.firebasestorage.app",
+  messagingSenderId: "85561384540",
+  appId: "1:85561384540:web:cf91923827a801b31d9099",
+  measurementId: "G-W4CLNK8PTS"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
+let currentUser = null;
+let myFollowing = [];
 
-let myName = "You";
-let myUid = "";
-let myEmail = "";
-let selMedia = null;
-let selType = "";
-let allUsers = [];
-let allPosts = [];
-let chatWithId = "";
-let chatWithName = "";
-
-window.show = function(id){
-let all =
-document.querySelectorAll('.screen');
-all.forEach(function(s){
-s.classList.remove('active');
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    currentUser = user;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('homeScreen').classList.remove('hidden');
+    document.getElementById('bottomNav').classList.remove('hidden');
+    // Apna follow record banao agar nahi hai
+    const myRef = doc(db,"users",user.uid);
+    const snap = await getDoc(myRef);
+    if(!snap.exists()){
+      await setDoc(myRef,{name:user.displayName||"User", following:[], followers:[]});
+    } else {
+      myFollowing = snap.data().following || [];
+    }
+    loadFeed();
+    loadProfile();
+  } else {
+    currentUser = null;
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('homeScreen').classList.add('hidden');
+    document.getElementById('bottomNav').classList.add('hidden');
+  }
 });
-document.getElementById(id)
-.classList.add('active');
-let nav =
-document.getElementById('bottomNav');
-if(id=='login'){
-nav.style.display='none';
-} else if(id=='splash'){
-nav.style.display='none';
-} else if(id=='chatRoom'){
-nav.style.display='none';
-} else {
-nav.style.display='flex';
-}
-window.scrollTo(0,0);
+
+window.doLogin = async ()=>{
+  const name = document.getElementById('nameInput').value;
+  const email = document.getElementById('emailInput').value;
+  const pass = document.getElementById('passInput').value;
+  if(!email || !pass){ document.getElementById('loginMsg').innerText = "Email aur Password likho"; return; }
+  try{ await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e){
+    try{
+      const u = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(u.user, {displayName: name || "User"});
+      await setDoc(doc(db,"users",u.user.uid),{name:name||"User", following:[], followers:[]});
+    } catch(e2){ document.getElementById('loginMsg').innerText = e2.message; }
+  }
+};
+window.doLogout = ()=> signOut(auth);
+window.showHome = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
+window.showProfile = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
+
+window.addPost = async ()=>{
+  const text = document.getElementById('postText').value;
+  if(!text) return;
+  await addDoc(collection(db,"posts"),{ text, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
+  document.getElementById('postText').value = "";
 };
 
-onAuthStateChanged(auth,
-async function(user){
-if(user){
-myUid = user.uid;
-try{
-let snap =
-await getDoc(
-doc(db,"users",user.uid)
-);
-if(snap.exists()){
-myName = snap.data().name;
-myEmail = snap.data().email;
-setUI(myName,myEmail);
+function loadProfile(){
+  const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
+  onSnapshot(doc(db,"users",currentUser.uid),(d)=>{
+    if(!d.exists()) return;
+    const u = d.data();
+    myFollowing = u.following || [];
+    document.getElementById('profileArea').innerHTML = `<div class="profileBox"><h2>${u.name}</h2><p style="color:#aaa;margin-top:6px">Following: ${u.following?.length||0} • Followers: ${u.followers?.length||0}</p><p style="font-size:13px;color:#888;margin-top:4px">Vynk • Apni Duniya</p></div>`;
+  });
 }
-} catch(e){
-}
-show('feed');
-listenPosts();
-listenUsers();
-listenNoti();
-} else {
-show('login');
-}
-});
 
-window.doSignup = async function(){
-let name =
-document.getElementById('lName').value;
-let email =
-document.getElementById('lEmail').value;
-let pass =
-document.getElementById('lPass').value;
-if(!name){
-document.getElementById('loginMsg')
-.innerText = 'نام لکھیں!';
-return;
+function loadFeed(){
+  const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
+  onSnapshot(q,(snap)=>{
+    let html = "";
+    snap.forEach(d=>{
+      const p = d.data();
+      const id = d.id;
+      const isMine = p.uid === currentUser.uid;
+      const isFollowing = myFollowing.includes(p.uid);
+      const isLiked = (p.likes||[]).includes(currentUser.uid);
+      let commentsHtml = "";
+      (p.comments||[]).forEach(c=>{
+        commentsHtml += `<div class="commentItem"><b>${c.name}:</b> ${c.text}</div>`;
+      });
+      html += `<div class="card">
+        <div class="head">
+          <b>${p.name||"User"}</b>
+          ${isMine ? `<span style="font-size:12px;color:#888">Tumhari Post</span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')">${isFollowing?'Unfollow':'Follow'}</button>`}
+        </div>
+        <p>${p.text||""}</p>
+        <div class="actions">
+          <button class="${isLiked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button>
+          <button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button>
+          <button onclick="sharePost('${p.text}')">↗️ Share</button>
+        </div>
+        <div class="comments" id="c-${id}">${commentsHtml}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter') addComment('${id}')"></div>
+      </div>`;
+    });
+    document.getElementById('feed').innerHTML = html || "<p style='text-align:center;color:#888;padding:20px'>Abhi koi post nahi hai, pehli post tum karo</p>";
+  });
 }
-if(!email.includes('@')){
-document.getElementById('loginMsg')
-.innerText = 'صحیح ای میل لکھیں';
-return;
-}
-if(pass.length<6){
-document.getElementById('loginMsg')
-.innerText = 'پاس ورڈ 6+ لکھیں';
-return;
-}
-try{
-let res =
-await createUserWithEmailAndPassword(
-auth,email,pass
-);
-myName = name;
-myUid = res.user.uid;
-myEmail = email;
-await setDoc(
-doc(db,"users",res.user.uid),
-{name:name,email:email,time:Date.now()}
-);
-setUI(name,email);
-show('feed');
-listenPosts();
-listenUsers();
-listenNoti();
-} catch(e){
-document.getElementById('loginMsg')
-.innerText = e.message;
-}
+
+window.toggleLike = async (postId)=>{
+  const ref = doc(db,"posts",postId);
+  const snap = await getDoc(ref);
+  const likes = snap.data().likes || [];
+  if(likes.includes(currentUser.uid)){
+    await updateDoc(ref,{likes: arrayRemove(currentUser.uid)});
+  } else {
+    await updateDoc(ref,{likes: arrayUnion(currentUser.uid)});
+  }
 };
 
-window.doLogin = async function(){
-let email =
-document.getElementById('lEmail').value;
-let pass =
-document.getElementById('lPass').value;
-try{
-let res =
-await signInWithEmailAndPassword(
-auth,email,pass
-);
-myUid = res.user.uid;
-let snap =
-await getDoc(
-doc(db,"users",res.user.uid)
-);
-if(snap.exists()){
-myName = snap.data().name;
-myEmail = snap.data().email;
-setUI(myName,myEmail);
-}
-show('feed');
-listenPosts();
-listenUsers();
-listenNoti();
-} catch(e){
-document.getElementById('loginMsg')
-.innerText = e.message;
-}
+window.focusComment = (id)=>{ document.getElementById('inp-'+id).focus(); };
+
+window.addComment = async (postId)=>{
+  const inp = document.getElementById('inp-'+postId);
+  const text = inp.value.trim();
+  if(!text) return;
+  const ref = doc(db,"posts",postId);
+  await updateDoc(ref,{comments: arrayUnion({name: currentUser.displayName||"User", text})});
+  inp.value = "";
 };
 
-function setUI(name,email){
-document.getElementById('profileName')
-.innerText = name;
-document.getElementById('profileEmail')
-.innerText = email;
-document.getElementById('settingName')
-.innerText = name;
-document.getElementById('settingEmail')
-.innerText = email;
-document.getElementById('userNameTop')
-.innerText = name;
-let ini = name.charAt(0).toUpperCase();
-document.getElementById('myAvatar')
-.innerText = ini;
-document.getElementById('profileAvatar')
-.innerText = ini;
-}
-
-window.logout = async function(){
-await signOut(auth);
-show('login');
+window.toggleFollow = async (targetUid, targetName)=>{
+  if(targetUid === currentUser.uid) return;
+  const myRef = doc(db,"users",currentUser.uid);
+  const targetRef = doc(db,"users",targetUid);
+  if(myFollowing.includes(targetUid)){
+    await updateDoc(myRef,{following: arrayRemove(targetUid)});
+    await updateDoc(targetRef,{followers: arrayRemove(currentUser.uid)});
+  } else {
+    await updateDoc(myRef,{following: arrayUnion(targetUid)});
+    // Agar samne wale ka record nahi hai to bana do
+    const tSnap = await getDoc(targetRef);
+    if(!tSnap.exists()){ await setDoc(targetRef,{name:targetName, following:[], followers:[currentUser.uid]}); }
+    else { await updateDoc(targetRef,{followers: arrayUnion(currentUser.uid)}); }
+  }
 };
 
-document.getElementById('mediaFile')
-.addEventListener('change',
-function(e){
-let f = e.target.files[0];
-if(!f) return;
-let r = new FileReader();
-r.onload = function(ev){
-selMedia = ev.target.result;
-if(f.type.includes('video')){
-selType = 'video';
-} else {
-selType = 'image';
-}
-document.getElementById('preview')
-.innerText = '✅ ' + f.name;
+window.sharePost = async (text)=>{
+  const shareText = "Vynk par dekho: " + text + " - Download Vynk App";
+  if(navigator.share){
+    try{ await navigator.share({title:"Vynk", text: shareText, url: location.href}); }catch(e){}
+  } else {
+    navigator.clipboard.writeText(shareText);
+    alert("Link copy ho gaya! Ab WhatsApp par paste kar do");
+  }
 };
-r.readAsDataURL(f);
-});
-
-window.addPost = async function(){
-let t =
-document.getElementById('postText').value;
-if(!t && !selMedia){
-alert('کچھ لکھیں!');
-return;
-}
-await addDoc(
-collection(db,"posts"),
-{
-name:myName,
-uid:myUid,
-text:t,
-media:selMedia||"",
-type:selType||"",
-likes:0,
-comments:[],
-shares:0,
-time:Date.now()
-}
-);
-document.getElementById('postText')
-.value = '';
-selMedia = null;
-document.getElementById('preview')
-.innerText = '';
-alert('پوسٹ چلی گئی ✅');
-};
-
-function listenPosts(){
-let q = query(
-collection(db,"posts"),
-orderBy("time","desc")
-);
-onSnapshot(q,
-function(snap){
-allPosts = [];
-snap.forEach(function(d){
-let p = d.data();
-p.id = d.id;
-allPosts.push(p);
-});
-let html = '';
-let vHtml = '';
-let mHtml = '';
-allPosts.forEach(function(p){
-let ini = 'U';
-if(p.name){
-ini = p.name.charAt(0).toUpperCase();
-}
-let m = '';
-if(p.media && p.type=='image'){
-m = '<img class="pimg" src="'
-+ p.media + '">';
-}
-if(p.media && p.type=='video'){
-m = '<video class="pimg" controls src="'
-+ p.media + '"></video>';
-}
-let cm = '';
-(p.comments||[]).forEach(function(c){
-cm += '<div class="cmt">'
-+ c + '</div>';
-});
-let card = '';
-card += '<div class="card">';
-card += '<div style="display:flex;gap:10px">';
-card += '<div class="av">'
-+ ini + '</div>';
-card += '<b>' + p.name + '</b>';
-card += '</div>';
-card += '<p style="margin:8px 0">'
-+ (p.text||'') + '</p>';
-card += m;
-card += '<div style="font-size:13px">';
-card += '❤️ ' + p.likes;
-card += ' • ' + (p.comments||[]).length;
-card += ' Comments • ' + p.shares;
-card += ' Shares</div>';
-card += '<div class="row">';
-card += '<button onclick="likePost(\''
-+ p.id + '\',\''
-+ p.uid + '\')">❤️ Like</button>';
-card += '<button onclick="document.getElementById(\'cmt-'
-+ p.id + '\').focus()">💬 Comment</button>';
-card += '<button onclick="sharePost(\''
-+ p.id + '\')">↗️ Share</button>';
-card += '</div>';
-card += cm;
-card += '<div style="display:flex;gap:5px;margin-top:8px">';
-card += '<input id="cmt-'
-+ p.id + '" placeholder="Comment..." style="margin:0">';
-card += '<button style="background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:20px" onclick="addComment(\''
-+ p.id + '\',\''
-+ p.uid + '\')">Send</button>';
-card += '</div>';
-card += '</div>';
-html += card;
-if(p.type=='video'){
-vHtml += card;
-}
-if(p.uid==myUid){
-mHtml += card;
-}
-});
-document.getElementById('posts')
-.innerHTML = html;
-if(!html){
-document.getElementById('posts')
-.innerHTML = '<div class="box">No posts yet</div>';
-}
-document.getElementById('videoList')
-.innerHTML = vHtml;
-let nv =
-document.getElementById('noVideo');
-if(vHtml){
-nv.style.display = 'none';
-} else {
-nv.style.display = 'block';
-}
-document.getElementById('myPosts')
-.innerHTML = mHtml;
-if(!mHtml){
-document.getElementById('myPosts')
-.innerHTML = '<div class="box">No posts yet</div>';
-}
-});
-}
-
-window.likePost = async function(id,owner){
-await updateDoc(
-doc(db,"posts",id),
-{likes:increment(1)}
-);
-if(owner!=myUid){
-await addDoc(
-collection(db,"notifications"),
-{
-to:owner,
-from:myName,
-text:myName+' liked your post ❤️',
-time:Date.now()
-}
-);
-}
-};
-
-window.addComment = async function(id,owner){
-let inp =
-document.getElementById('cmt-'+id);
-let v = inp.value;
-if(!v) return;
-await updateDoc(
-doc(db,"posts",id),
-{comments:arrayUnion(myName+': '+v)}
-);
-if(owner!=myUid){
-await addDoc(
-collection(db,"notifications"),
-{
-to:owner,
-from:myName,
-text:myName+' commented: '+v,
-time:Date.now()
-}
-);
-}
-};
-
-window.sharePost = async function(id){
-await updateDoc(
-doc(db,"posts",id),
-{shares:increment(1)}
-);
-alert('Shared ✅');
-};
-
-function listenUsers(){
-onSnapshot(
-collection(db,"users"),
-function(snap){
-allUsers = [];
-snap.forEach(function(d){
-if(d.id!==myUid){
-let u = d.data();
-u.id = d.id;
-if(u.name){
-allUsers.push(u);
-}
-}
-});
-let html = '';
-allUsers.forEach(function(u){
-let ini =
-u.name.charAt(0).toUpperCase();
-html += '<div class="frow">';
-html += '<div class="av">'
-+ ini + '</div>';
-html += '<div style="flex:1">';
-html += '<b>' + u.name + '</b><br>';
-html += '<small>' + u.email + '</small>';
-html += '</div>';
-html += '<button style="background:#1877f2;color:white;border:none;padding:8px 12px;border-radius:20px" onclick="openChat(\'';
-html += u.id + '\',\'';
-html += u.name + '\')">💬 Chat</button>';
-html += '</div>';
-});
-document.getElementById('friendList')
-.innerHTML = html;
-let nf =
-document.getElementById('noFriends');
-if(allUsers.length==0){
-nf.style.display = 'block';
-} else {
-nf.style.display = 'none';
-}
-let ch = '';
-allUsers.forEach(function(u){
-let ini =
-u.name.charAt(0).toUpperCase();
-ch += '<div class="frow" onclick="openChat(\'';
-ch += u.id + '\',\'';
-ch += u.name + '\')">';
-ch += '<div class="av">'
-+ ini + '</div>';
-ch += '<div style="flex:1"><b>'
-+ u.name + '</b><br>';
-ch += '<small>Tap to chat</small></div>';
-ch += '<span>›</span></div>';
-});
-document.getElementById('chatList')
-.innerHTML = ch;
-});
-}
-
-window.doSearch = function(){
-let q =
-document.getElementById('searchInput')
-.value.toLowerCase();
-let f = allUsers.filter(function(u){
-return u.name.toLowerCase().includes(q);
-});
-let html = '';
-f.forEach(function(u){
-html += '<div class="frow">';
-html += '<div class="av">'
-+ u.name.charAt(0) + '</div>';
-html += '<div style="flex:1"><b>'
-+ u.name + '</b></div>';
-html += '<button onclick="openChat(\'';
-html += u.id + '\',\'';
-html += u.name + '\')">Chat</button>';
-html += '</div>';
-});
-document.getElementById('searchResult')
-.innerHTML = html;
-if(!html){
-document.getElementById('searchResult')
-.innerHTML = '<div class="box">No user</div>';
-}
-};
-
-window.openChat = function(uid,name){
-chatWithId = uid;
-chatWithName = name;
-document.getElementById('chatWithName')
-.innerText = name;
-show('chatRoom');
-let ids = [myUid,uid].sort();
-let chatId = ids[0] + '_' + ids[1];
-let q = query(
-collection(db,"messages"),
-where("chatId","==",chatId),
-orderBy("time","asc")
-);
-onSnapshot(q,
-function(snap){
-let html = '';
-snap.forEach(function(d){
-let m = d.data();
-let isMine = false;
-if(m.fromUid==myUid){
-isMine = true;
-}
-if(isMine){
-html += '<div class="chat mine">';
-} else {
-html += '<div class="chat">';
-}
-html += '<b>' + m.fromName + '</b><br>';
-html += m.text;
-html += '</div>';
-});
-document.getElementById('chatMessages')
-.innerHTML = html;
-if(!html){
-document.getElementById('chatMessages')
-.innerHTML = '<div class="box">Start chatting!</div>';
-}
-});
-};
-
-window.sendMessage = async function(){
-let txt =
-document.getElementById('chatInput').value;
-if(!txt) return;
-let ids = [myUid,chatWithId].sort();
-let chatId = ids[0] + '_' + ids[1];
-await addDoc(
-collection(db,"messages"),
-{
-chatId:chatId,
-fromUid:myUid,
-fromName:myName,
-toUid:chatWithId,
-text:txt,
-time:Date.now()
-}
-);
-await addDoc(
-collection(db,"notifications"),
-{
-to:chatWithId,
-from:myName,
-text:myName+' sent message 💬',
-time:Date.now()
-}
-);
-document.getElementById('chatInput')
-.value = '';
-};
-
-function listenNoti(){
-let q = query(
-collection(db,"notifications"),
-where("to","==",myUid),
-orderBy("time","desc")
-);
-onSnapshot(q,
-function(snap){
-let html = '';
-snap.forEach(function(d){
-let n = d.data();
-html += '<div class="frow">';
-html += '<div class="av">';
-html += n.from.charAt(0);
-html += '</div><div>';
-html += '<b>' + n.from + '</b><br>';
-html += n.text;
-html += '</div></div>';
-});
-document.getElementById('notiList')
-.innerHTML = html;
-if(!html){
-document.getElementById('notiList')
-.innerHTML = '<div class="box">No Notifications</div>';
-}
-});
-}
 </script>
 </body>
-  </html>
+</html>
