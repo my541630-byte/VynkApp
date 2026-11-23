@@ -41,19 +41,18 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
 <div id="loginPage" style="display:none">
   <div class="login-box">
     <h1>Vynk</h1>
     <p>Drama Lovers ki Apni Duniya</p>
     <input id="loginName" placeholder="Apna Naam likho">
+    <input id="loginEmail" type="email" placeholder="Gmail likho - jaise ali@gmail.com">
     <input id="loginPass" type="password" placeholder="Password likho">
     <button class="login-btn" onclick="doLogin()">Login / Account Banao</button>
-    <p style="font-size:12px;margin-top:12px">Pehli bar ho to Naam + Password likh kar dabao, Account ban jayega</p>
+    <p style="font-size:12px;margin-top:12px">Gmail aur Password sirf tum ko pata hoga, kisi aur ko nahi dikhega. Post par sirf Naam dikhega.</p>
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="mainApp" style="display:none">
   <div class="header"><b>Vynk</b><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
   <div class="post-box">
@@ -75,73 +74,55 @@ let currentUser = localStorage.getItem('vynk_user') || '';
 let previewData = '';
 let previewIsVideo = false;
 
-if(currentUser){
-  showMain();
-} else {
-  document.getElementById('loginPage').style.display = 'block';
-}
+if(currentUser){ showMain(); } else { document.getElementById('loginPage').style.display='block'; }
 
 function doLogin(){
   let name = document.getElementById('loginName').value.trim();
+  let email = document.getElementById('loginEmail').value.trim();
   let pass = document.getElementById('loginPass').value.trim();
-  if(!name || !pass){ alert('Naam aur Password dono likho!'); return; }
+  if(!name || !email || !pass){ alert('Naam, Gmail aur Password teeno likho!'); return; }
+  if(!email.includes('@')){ alert('Sahi Gmail likho!'); return; }
   let users = JSON.parse(localStorage.getItem('vynk_users') || '{}');
-  if(users[name]){
-    if(users[name] !== pass){ alert('Password ghalat hai!'); return; }
+  if(users[email]){
+    if(users[email].pass !== pass){ alert('Password ghalat hai!'); return; }
+    currentUser = users[email].name;
   } else {
-    users[name] = pass;
+    users[email] = {name: name, pass: pass};
     localStorage.setItem('vynk_users', JSON.stringify(users));
+    currentUser = name;
     alert('Welcome ' + name + '! Tumhara Account ban gaya!');
   }
-  currentUser = name;
-  localStorage.setItem('vynk_user', name);
+  localStorage.setItem('vynk_user', currentUser);
   showMain();
 }
 function showMain(){
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  document.getElementById('welcomeText').innerText = 'Hi, ' + currentUser;
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('welcomeText').innerText='Hi, '+currentUser;
   renderPosts();
 }
-function doLogout(){
-  localStorage.removeItem('vynk_user');
-  location.reload();
-}
-function savePosts(){
-  try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); }
-  catch(e){ alert('Storage full ho gaya!'); }
-}
+function doLogout(){ localStorage.removeItem('vynk_user'); location.reload(); }
+function savePosts(){ try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); } catch(e){ alert('Storage full!'); } }
 function showPreview(){
-  let file = document.getElementById('mediaInput').files[0];
+  let file=document.getElementById('mediaInput').files[0];
   if(!file) return;
-  if(file.size > 10 * 1024 * 1024){ alert('10 MB se choti file lagao!'); document.getElementById('mediaInput').value=''; return; }
+  if(file.size > 10*1024*1024){ alert('10 MB se choti file lagao!'); document.getElementById('mediaInput').value=''; return; }
   if(file.type.startsWith('video')){
-    let video = document.createElement('video');
-    video.preload='metadata';
-    video.onloadedmetadata=function(){
-      if(video.duration > 30){ alert('Video 30 second se lambi hai!'); document.getElementById('mediaInput').value=''; return; }
-      readFile(file);
-    };
-    video.src = URL.createObjectURL(file);
+    let video=document.createElement('video'); video.preload='metadata';
+    video.onloadedmetadata=function(){ if(video.duration>30){ alert('Video 30 second se lambi hai!'); document.getElementById('mediaInput').value=''; return; } readFile(file); };
+    video.src=URL.createObjectURL(file);
   } else { readFile(file); }
 }
 function readFile(file){
-  let reader = new FileReader();
-  reader.onload=function(e){
-    previewData=e.target.result;
-    previewIsVideo=file.type.startsWith('video');
-    document.getElementById('preview').innerHTML = previewIsVideo ? '<video src="'+previewData+'" controls></video>' : '<img src="'+previewData+'">';
-  };
+  let reader=new FileReader();
+  reader.onload=function(e){ previewData=e.target.result; previewIsVideo=file.type.startsWith('video'); document.getElementById('preview').innerHTML=previewIsVideo?'<video src="'+previewData+'" controls></video>':'<img src="'+previewData+'">'; };
   reader.readAsDataURL(file);
 }
 function renderPosts(){
-  let feed = document.getElementById('feed');
-  feed.innerHTML='';
+  let feed=document.getElementById('feed'); feed.innerHTML='';
   posts.forEach(function(post,index){
-    let div=document.createElement('div');
-    div.className='post';
-    let mediaHTML='';
-    if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
+    let div=document.createElement('div'); div.className='post';
+    let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
     let commentsHTML=post.comments.map(c=>'<div>'+c+'</div>').join('');
     div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button onclick="sharePost('+index+')">↗️ Share</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
     feed.appendChild(div);
@@ -149,7 +130,7 @@ function renderPosts(){
 }
 function addPost(){
   let nameInput=document.getElementById('dramaName').value;
-  let name=nameInput ? nameInput + ' - ' + currentUser : currentUser;
+  let name=nameInput ? nameInput+' - '+currentUser : currentUser;
   let text=document.getElementById('postText').value;
   let file=document.getElementById('mediaInput').files[0];
   if(!text && !file && !nameInput){ alert('Pehle kuch likho!'); return; }
@@ -160,8 +141,8 @@ function addPost(){
 function toggleFollow(index){ posts[index].follow=!posts[index].follow; savePosts(); renderPosts(); }
 function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} savePosts(); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser + ': ' + input.value); savePosts(); renderPosts(); }
+function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); savePosts(); renderPosts(); }
 function sharePost(index){ let text=posts[index].text||'Vynk Post'; if(navigator.share){navigator.share({title:'Vynk',text:text});} else {alert(text);} }
 </script>
 </body>
-                   </html>
+      </html>
