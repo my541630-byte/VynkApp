@@ -19,9 +19,11 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .card p{margin:10px 0;line-height:1.5;font-size:15px}
 .followBtn{background:#00ff88;color:#000;border:0;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px}
 .followBtn.off{background:#222;color:#fff}
-.actions{display:flex;justify-content:space-between;margin-top:10px;border-top:1px solid #333;padding-top:10px}
-.actions button{background:none;border:0;color:#ccc;font-size:14px}
-.actions button.liked{color:#ff3b5c}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;border-top:1px solid #333;padding-top:10px}
+.actions button{background:#222;border:0;color:#ccc;font-size:13px;padding:7px 10px;border-radius:20px}
+.actions button.liked{color:#ff3b5c;background:#2a1218}
+.actions button.writeBtn{background:#1a2a22;color:#00ff88}
+.actions button.ytBtn{background:#2a1212;color:#ff5555}
 .comments{margin-top:10px}
 .comments input{width:100%;background:#222;border:0;padding:10px;border-radius:20px;color:#fff;outline:none;margin-top:8px}
 .commentItem{background:#222;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:13px}
@@ -38,18 +40,22 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .loadingScreen h1{font-size:44px;color:#00ff88}
 .spinner{width:50px;height:50px;border:5px solid #222;border-top:5px solid #00ff88;border-radius:50%;margin:25px auto;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.popup{position:fixed;left:10px;right:10px;bottom:80px;background:#1e1e1e;border:1px solid #333;border-radius:15px;padding:15px;z-index:99}
+.popup textarea{width:100%;height:120px;background:#222;border:0;color:#fff;padding:10px;border-radius:10px;outline:none;margin-top:10px}
+.popup button{padding:10px 14px;border:0;border-radius:20px;font-weight:700;margin-top:10px;margin-right:6px}
+.plusBtn{position:fixed;bottom:80px;right:15px;width:55px;height:55px;border-radius:50%;background:#00ff88;color:#000;font-size:28px;border:0;font-weight:900;z-index:30;box-shadow:0 4px 15px rgba(0,255,136,.4)}
+.postImg{width:100%;border-radius:10px;margin-top:8px}
+.postVideo{width:100%;border-radius:10px;margin-top:8px;max-height:320px}
 </style>
 </head>
 <body>
 
-<!-- LOADING - Pehle yehi dikhega -->
 <div id="loadingScreen" class="loadingScreen">
   <h1>Vynk</h1>
   <div class="spinner"></div>
   <p style="color:#aaa">Loading... Apni Duniya Khul Rahi Hai</p>
 </div>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="login hidden">
   <h1>Vynk</h1>
   <p style="color:#aaa;margin-bottom:15px">Apni Duniya, Apne Log</p>
@@ -60,7 +66,6 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
   <p id="loginMsg" style="margin-top:10px;color:#ff5555"></p>
 </div>
 
-<!-- HOME -->
 <div id="homeScreen" class="hidden">
   <div class="top">
     <div class="logo">Vynk</div>
@@ -68,10 +73,30 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
   </div>
   <div id="profileArea"></div>
   <div class="post-box">
-    <input id="postText" placeholder="Kya soch rahe ho?">
+    <input id="postText" placeholder="Kya soch rahe ho? Naat, Drama, Video ka naam...">
+    <input type="file" id="mediaInput" accept="image/*,video/*" style="margin-top:10px;color:#aaa">
+    <p style="font-size:12px;color:#888;margin-top:5px">Photo ya 10 min tak ki Video chun sakte ho</p>
     <button onclick="addPost()">Post Karo</button>
   </div>
   <div id="feed"></div>
+</div>
+
+<!-- (+) Plus Button -->
+<button id="plusBtn" class="plusBtn hidden" onclick="document.getElementById('mediaInput').click();window.scrollTo({top:0,behavior:'smooth'})">+</button>
+
+<!-- Write Video Popup -->
+<div id="writePopup" class="popup hidden">
+  <b id="writeTitle" style="color:#00ff88">✍️ Write Video</b>
+  <p id="writeSub" style="font-size:13px;color:#aaa;margin-top:5px">Language chuno:</p>
+  <div style="margin-top:10px">
+    <button style="background:#00ff88" onclick="chooseLang('Urdu')">Urdu</button>
+    <button style="background:#fff" onclick="chooseLang('English')">English</button>
+    <button style="background:#222;color:#fff" onclick="closeWrite()">Band Karo</button>
+  </div>
+  <textarea id="writeText" placeholder="Yahan likhi hui Naat / Video ka text aayega... Tum khud bhi likh sakte ho ya bol kar likh sakte ho"></textarea>
+  <button style="background:#00ff88" onclick="saveWritten()">💾 Save Karo</button>
+  <button style="background:#222;color:#fff" onclick="startVoice()">🎤 Bol Kar Likho</button>
+  <p id="writeMsg" style="font-size:12px;color:#00ff88;margin-top:8px"></p>
 </div>
 
 <div class="nav hidden" id="bottomNav">
@@ -83,7 +108,7 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -101,15 +126,17 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 let currentUser = null;
 let myFollowing = [];
+let currentWritePost = null;
+let currentLang = "Urdu";
 
 onAuthStateChanged(auth, async (user)=>{
-  // Pehle Loading ko band karo
   document.getElementById('loadingScreen').classList.add('hidden');
   if(user){
     currentUser = user;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('homeScreen').classList.remove('hidden');
     document.getElementById('bottomNav').classList.remove('hidden');
+    document.getElementById('plusBtn').classList.remove('hidden');
     const myRef = doc(db,"users",user.uid);
     const snap = await getDoc(myRef);
     if(!snap.exists()){
@@ -124,6 +151,7 @@ onAuthStateChanged(auth, async (user)=>{
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('homeScreen').classList.add('hidden');
     document.getElementById('bottomNav').classList.add('hidden');
+    document.getElementById('plusBtn').classList.add('hidden');
   }
 });
 
@@ -145,11 +173,26 @@ window.doLogout = ()=> signOut(auth);
 window.showHome = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 window.showProfile = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 
+// ===== POST + PHOTO/VIDEO =====
 window.addPost = async ()=>{
   const text = document.getElementById('postText').value;
-  if(!text) return;
-  await addDoc(collection(db,"posts"),{ text, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
+  const fileInput = document.getElementById('mediaInput');
+  if(!text && !fileInput.files[0]) return;
+  let mediaUrl = "";
+  let mediaType = "";
+  if(fileInput.files[0]){
+    const file = fileInput.files[0];
+    // 10 min check - video ke liye
+    mediaType = file.type.startsWith('video') ? 'video' : 'image';
+    mediaUrl = await new Promise((res)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.readAsDataURL(file);
+    });
+  }
+  await addDoc(collection(db,"posts"),{ text, mediaUrl, mediaType, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
   document.getElementById('postText').value = "";
+  fileInput.value = "";
 };
 
 function loadProfile(){
@@ -175,16 +218,26 @@ function loadFeed(){
       (p.comments||[]).forEach(c=>{
         commentsHtml += `<div class="commentItem"><b>${c.name}:</b> ${c.text}</div>`;
       });
+      let mediaHtml = "";
+      if(p.mediaUrl){
+        if(p.mediaType === 'video') mediaHtml = `<video class="postVideo" controls src="${p.mediaUrl}"></video>`;
+        else mediaHtml = `<img class="postImg" src="${p.mediaUrl}">`;
+      }
+      // Safe text for YouTube search
+      const safeText = (p.text||"").replace(/'/g,"").replace(/"/g,"");
       html += `<div class="card">
         <div class="head">
           <b>${p.name||"User"}</b>
-          ${isMine ? `<span style="font-size:12px;color:#888">Tumhari Post</span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')">${isFollowing?'Unfollow':'Follow'}</button>`}
+          ${isMine ? `<span><button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button></span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')">${isFollowing?'Unfollow':'Follow'}</button>`}
         </div>
         <p>${p.text||""}</p>
+        ${mediaHtml}
         <div class="actions">
           <button class="${isLiked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button>
           <button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button>
-          <button onclick="sharePost('${p.text}')">↗️ Share</button>
+          <button class="writeBtn" onclick="openWrite('${id}','${safeText}')">✍️ Write Video</button>
+          <button class="ytBtn" onclick="openYouTube('${safeText}')">▶️ YouTube Par Puri Dekho</button>
+          <button onclick="sharePost('${safeText}')">↗️ Share</button>
         </div>
         <div class="comments" id="c-${id}">${commentsHtml}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter') addComment('${id}')"></div>
       </div>`;
@@ -192,6 +245,56 @@ function loadFeed(){
     document.getElementById('feed').innerHTML = html || "<p style='text-align:center;color:#888;padding:20px'>Abhi koi post nahi hai, pehli post tum karo</p>";
   });
 }
+
+// ===== 2. WRITE VIDEO =====
+window.openWrite = (postId, postText)=>{
+  currentWritePost = postId;
+  document.getElementById('writePopup').classList.remove('hidden');
+  document.getElementById('writeText').value = postText ? postText + "\n\n---\nIs Video ki likhi hui Naat / Text yahan aayegi..." : "";
+  document.getElementById('writeMsg').innerText = "";
+  document.getElementById('writeTitle').innerText = "✍️ Write Video - " + (postText ? postText.slice(0,30) : "Video");
+};
+window.closeWrite = ()=>{ document.getElementById('writePopup').classList.add('hidden'); };
+window.chooseLang = (lang)=>{
+  currentLang = lang;
+  document.getElementById('writeSub').innerText = "Language: " + lang + " - Ab neeche likho ya Bol Kar Likho dabao";
+  document.getElementById('writeMsg').innerText = lang + " select ho gayi!";
+};
+window.startVoice = ()=>{
+  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Speech){ alert("Is mobile me Bol Kar Likhna support nahi karta, khud likh lo"); return; }
+  const rec = new Speech();
+  rec.lang = currentLang === 'Urdu' ? 'ur-PK' : 'en-US';
+  rec.onresult = (e)=>{
+    document.getElementById('writeText').value += " " + e.results[0][0].transcript;
+  };
+  rec.start();
+  document.getElementById('writeMsg').innerText = "Sun raha hoon... Bolo!";
+};
+window.saveWritten = ()=>{
+  const txt = document.getElementById('writeText').value;
+  if(!txt){ alert("Pehle kuch likho"); return; }
+  // Mobile me download / save
+  const blob = new Blob([txt], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "Vynk-" + currentLang + "-Naat.txt";
+  a.click();
+  // Local save bhi
+  localStorage.setItem('vynk_saved_' + Date.now(), txt);
+  document.getElementById('writeMsg').innerText = "✅ Save ho gaya! Tumhare mobile me download ho gaya.";
+};
+
+// ===== 3. YOUTUBE PAR PURI FILM / DRAMA =====
+window.openYouTube = (text)=>{
+  const q = encodeURIComponent(text + " full drama / full movie");
+  window.open("https://www.youtube.com/results?search_query=" + q, "_blank");
+};
+
+window.deletePost = async (postId)=>{
+  if(!confirm("Kya tum ye post delete karna chahte ho?")) return;
+  await deleteDoc(doc(db,"posts",postId));
+};
 
 window.toggleLike = async (postId)=>{
   const ref = doc(db,"posts",postId);
@@ -236,9 +339,9 @@ window.sharePost = async (text)=>{
     try{ await navigator.share({title:"Vynk", text: shareText, url: location.href}); }catch(e){}
   } else {
     navigator.clipboard.writeText(shareText);
-    alert("Link copy ho gaya! Ab WhatsApp par paste kar do");
+    alert("Link copy ho gaya! Ab WhatsApp / Snapchat par paste kar do");
   }
 };
 </script>
 </body>
-  </html>
+      </html>
