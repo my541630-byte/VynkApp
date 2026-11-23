@@ -1,44 +1,95 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vynk</title><style>*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#0f0f0f;color:#fff;padding-bottom:70px}.top{position:sticky;top:0;background:#000;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;z-index:10}.logo{font-size:26px;font-weight:900;color:#00ff88}.top button,.sBar button,.box button{background:#222;color:#fff;border:0;padding:8px 14px;border-radius:20px}.sBar{background:#1a1a1a;margin:10px;padding:10px;border-radius:12px;display:flex;gap:8px}.sBar input{flex:1;background:#222;border:0;padding:12px;border-radius:20px;color:#fff;outline:none}.sBar button{background:#00ff88;color:#000;font-weight:800}.meter{background:#1a2a22;margin:10px;padding:10px;border-radius:10px;font-size:13px;border:1px solid #00ff88}.box,.card{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}.box input{width:100%;background:#222;border:0;padding:12px;border-radius:10px;color:#fff;outline:none;margin-top:8px}.box .t{border:2px solid #00ff88;background:#1a2a22}.box button{margin-top:10px;background:#00ff88;color:#000;border:0;padding:12px;border-radius:20px;font-weight:700;width:100%}.card b{color:#00ff88}.card p{margin:8px 0;font-size:15px}.pt{font-size:16px;font-weight:800;margin-top:6px}.act{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;border-top:1px solid #333;padding-top:10px}.act button{background:#222;border:0;color:#ccc;font-size:13px;padding:7px 10px;border-radius:20px}.act .liked{color:#ff3b5c}.act .w{background:#1a2a22;color:#00ff88}.act .y{background:#2a1212;color:#ff5555}.act .d{background:#122a1e;color:#00ff88;border:1px solid #00ff88;font-weight:800}.cm input{width:100%;background:#222;border:0;padding:10px;border-radius:20px;color:#fff;outline:none;margin-top:8px}.ci{background:#222;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:13px}.login{padding:30px 20px;text-align:center}.login h1{font-size:44px;color:#00ff88}.login input{width:100%;padding:14px;margin:8px 0;border-radius:10px;border:0;background:#222;color:#fff}.login button{width:100%;padding:14px;background:#00ff88;border:0;border-radius:10px;font-weight:800}.hidden{display:none}.nav{position:fixed;bottom:0;left:0;right:0;background:#000;display:flex;justify-content:space-around;padding:12px;border-top:1px solid #222;z-index:20}.nav button{background:none;border:0;color:#fff}.pBox{background:#1a1a1a;margin:10px;padding:15px;border-radius:12px;text-align:center}.pBox h2{color:#00ff88}.load{padding:80px 20px;text-align:center}.load h1{font-size:44px;color:#00ff88}.sp{width:50px;height:50px;border:5px solid #222;border-top:5px solid #00ff88;border-radius:50%;margin:25px auto;animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}.pop{position:fixed;left:10px;right:10px;bottom:80px;background:#1e1e1e;border:1px solid #333;border-radius:15px;padding:15px;z-index:99}.pop textarea{width:100%;height:120px;background:#222;border:0;color:#fff;padding:10px;border-radius:10px;outline:none;margin-top:10px}.pop button{padding:10px 14px;border:0;border-radius:20px;font-weight:700;margin-top:10px;margin-right:6px}.plus{position:fixed;bottom:80px;right:15px;width:55px;height:55px;border-radius:50%;background:#00ff88;color:#000;font-size:28px;border:0;font-weight:900;z-index:30}.postImg,.postVideo{width:100%;border-radius:10px;margin-top:8px}.postVideo{max-height:320px}.ytB{background:#000;padding:10px;border-radius:10px;margin-top:10px;border:1px solid #ff5555}.ytB a{color:#ff5555;font-weight:700;text-decoration:none}.fbB{background:#000;padding:10px;border-radius:10px;margin-top:10px;border:1px solid #1877F2}.fbB a{color:#5da9ff;font-weight:700;text-decoration:none}</style></head><body>
-<div id="loadingScreen" class="load"><h1>Vynk</h1><div class="sp"></div><p style="color:#aaa">Loading... Apni Duniya Khul Rahi Hai</p></div>
-<div id="loginScreen" class="login hidden"><h1>Vynk</h1><p style="color:#aaa">Apni Duniya, Apne Log</p><input id="nameInput" placeholder="Apna Naam"><input id="emailInput" placeholder="Email"><input id="passInput" type="password" placeholder="Password"><button onclick="doLogin()">Login / Account Banao</button><p id="loginMsg" style="color:#ff5555"></p></div>
-<div id="homeScreen" class="hidden"><div class="top"><div class="logo">Vynk</div><button onclick="doLogout()">Logout</button></div>
-<div class="sBar"><input id="searchInput" placeholder="🔍 Search karo - Jese: Kurulus Osman" onkeydown="if(event.key==='Enter')doSearch()"><button onclick="doSearch()">🔍 Search</button></div><div style="text-align:center"><button onclick="clearSearch()" id="clearSearchBtn" class="hidden" style="background:#222;color:#aaa;border:0;padding:6px 12px;border-radius:20px;font-size:12px">❌ Search Khatam Karo</button></div>
-<div class="meter" id="dbMeter">📊 Database check ho raha hai...</div><div id="profileArea"></div>
-<div class="box"><b style="color:#00ff88">✍️ Nayi Post</b><input id="postTitle" class="t" placeholder="⭐ Drama / Film / Naat ka PURA Naam - Jese: Kurulus Osman Episode 150"><input id="postText" placeholder="Is bare me kuch likho..."><input id="youtubeLink" placeholder="🔗 YouTube ka Link yahan paste karo"><input id="fbLink" placeholder="🔗 Facebook ka Link yahan paste karo"><input type="file" id="mediaInput" accept="image/*,video/*" style="color:#aaa"><button onclick="addPost()">Post Karo</button></div><div id="feed"></div></div>
-<button id="plusBtn" class="plus hidden" onclick="document.getElementById('mediaInput').click()">+</button>
-<div id="writePopup" class="pop hidden"><b id="writeTitle">✍️ Write Video</b><p id="writeSub" style="font-size:13px;color:#aaa">Language chuno:</p><div><button style="background:#00ff88" onclick="chooseLang('Urdu')">Urdu</button><button style="background:#fff" onclick="chooseLang('English')">English</button><button style="background:#222;color:#fff" onclick="closeWrite()">Band Karo</button></div><textarea id="writeText" placeholder="Naat / Text yahan likho..."></textarea><button style="background:#00ff88" onclick="saveWritten()">💾 Save Karo</button><button style="background:#222;color:#fff" onclick="startVoice()">🎤 Bol Kar Likho</button><p id="writeMsg" style="font-size:12px;color:#00ff88"></p></div>
-<div class="nav hidden" id="bottomNav"><button onclick="showHome()">🏠 Home</button><button onclick="showProfile()">👤 Profile</button><button onclick="showHome()">💬 Chat</button><button onclick="doLogout()">🚪 Logout</button></div>
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import {getFirestore,collection,addDoc,onSnapshot,query,orderBy,serverTimestamp,doc,updateDoc,arrayUnion,arrayRemove,getDoc,setDoc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import {getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",authDomain:"vynkapp-10da0.firebaseapp.com",projectId:"vynkapp-10da0",storageBucket:"vynkapp-10da0.firebasestorage.app",messagingSenderId:"85561384540",appId:"1:85561384540:web:cf91923827a801b31d9099",measurementId:"G-W4CLNK8PTS"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);const auth=getAuth(app);
-let currentUser=null,myFollowing=[],currentLang="Urdu",totalPostsCount=0,allPosts=[],searchQuery="";
-setTimeout(()=>{const l=document.getElementById('loadingScreen');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');const lo=document.getElementById('loginScreen');const h=document.getElementById('homeScreen');if(lo.classList.contains('hidden')&&h.classList.contains('hidden'))lo.classList.remove('hidden');}},5000);
-onAuthStateChanged(auth,async(u)=>{document.getElementById('loadingScreen').classList.add('hidden');if(u){currentUser=u;document.getElementById('loginScreen').classList.add('hidden');document.getElementById('homeScreen').classList.remove('hidden');document.getElementById('bottomNav').classList.remove('hidden');document.getElementById('plusBtn').classList.remove('hidden');const r=doc(db,"users",u.uid);const s=await getDoc(r);if(!s.exists())await setDoc(r,{name:u.displayName||"User",following:[],followers:[]});else myFollowing=s.data().following||[];loadFeed();loadProfile();}else{currentUser=null;document.getElementById('loginScreen').classList.remove('hidden');document.getElementById('homeScreen').classList.add('hidden');document.getElementById('bottomNav').classList.add('hidden');document.getElementById('plusBtn').classList.add('hidden');}});
-window.doLogin=async()=>{const n=document.getElementById('nameInput').value;const e=document.getElementById('emailInput').value;const p=document.getElementById('passInput').value;if(!e||!p){document.getElementById('loginMsg').innerText="Email aur Password likho";return;}try{await signInWithEmailAndPassword(auth,e,p);}catch(err){try{const u=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(u.user,{displayName:n||"User"});await setDoc(doc(db,"users",u.user.uid),{name:n||"User",following:[],followers:[]});}catch(e2){document.getElementById('loginMsg').innerText=e2.message;}}};
-window.doLogout=()=>signOut(auth);window.showHome=()=>window.scrollTo({top:0,behavior:'smooth'});window.showProfile=()=>window.scrollTo({top:0,behavior:'smooth'});
-window.doSearch=()=>{searchQuery=document.getElementById('searchInput').value.trim().toLowerCase();if(!searchQuery){alert("Pehle kuch likho");return;}document.getElementById('clearSearchBtn').classList.remove('hidden');renderFeed();};
-window.clearSearch=()=>{searchQuery="";document.getElementById('searchInput').value="";document.getElementById('clearSearchBtn').classList.add('hidden');renderFeed();};
-function updateDbMeter(){const pc=Math.min(100,Math.round((totalPostsCount/500)*100));let st="✅ Abhi Bilkul Safe Hai";let c="#00ff88";if(pc>70){st="⚠️ Thora Bhar Raha Hai - Sirf YouTube Link Use Karo";c="#ffaa00";}if(pc>90){st="🛑 Full Hone Wala Hai";c="#ff5555";}document.getElementById('dbMeter').innerHTML=`📊 <b>Database:</b> ${pc}% bhara • Posts: ${totalPostsCount} • <span style="color:${c}">${st}</span>`;}
-window.addPost=async()=>{const ti=document.getElementById('postTitle').value.trim();const te=document.getElementById('postText').value.trim();const yt=document.getElementById('youtubeLink').value.trim();const fb=document.getElementById('fbLink').value.trim();const fi=document.getElementById('mediaInput');if(!ti){}if(!te&&!fi.files[0]&&!yt&&!fb){alert("Kuch to likho ya Video chuno");return;}let mu="",mt="";if(fi.files[0]){const f=fi.files[0];if(f.size>50*1024*1024){alert("Video bari hai! YouTube / Facebook Link use karo.");return;}mt=f.type.startsWith('video')?'video':'image';mu=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(f);});}await addDoc(collection(db,"posts"),{title:ti,text:te,youtubeLink:yt,fbLink:fb,mediaUrl:mu,mediaType:mt,name:currentUser.displayName||"User",uid:currentUser.uid,createdAt:serverTimestamp(),likes:[],comments:[]});document.getElementById('postTitle').value="";document.getElementById('postText').value="";document.getElementById('youtubeLink').value="";document.getElementById('fbLink').value="";fi.value="";alert("✅ Post ho gayi!");};
-function loadProfile(){onSnapshot(doc(db,"users",currentUser.uid),(d)=>{if(!d.exists())return;const u=d.data();myFollowing=u.following||[];document.getElementById('profileArea').innerHTML=`<div class="pBox"><h2>${u.name}</h2><p style="color:#aaa">Following: ${u.following?.length||0} • Followers: ${u.followers?.length||0}</p></div>`;});}
-function loadFeed(){const q=query(collection(db,"posts"),orderBy("createdAt","desc"));onSnapshot(q,(s)=>{totalPostsCount=s.size;updateDbMeter();allPosts=[];s.forEach(d=>{allPosts.push({id:d.id,...d.data()});});renderFeed();});}
-function renderFeed(){let list=allPosts;if(searchQuery)list=allPosts.filter(p=>((p.title||"")+" "+(p.text||"")+" "+(p.name||"")).toLowerCase().includes(searchQuery));let h="";if(searchQuery)h+=`<p style='text-align:center;color:#00ff88;padding:10px'>🔍 Result: "${searchQuery}" - ${list.length} mili</p>`;list.forEach(p=>{const id=p.id;const mine=p.uid===currentUser.uid;const fol=myFollowing.includes(p.uid);const liked=(p.likes||[]).includes(currentUser.uid);let ch="";(p.comments||[]).forEach(c=>{ch+=`<div class="ci"><b>${c.name}:</b> ${c.text}</div>`;});let mh="";if(p.mediaUrl){if(p.mediaType==='video')mh=`<video class="postVideo" controls src="${p.mediaUrl}"></video>`;else mh=`<img class="postImg" src="${p.mediaUrl}">`;}let yth="";if(p.youtubeLink)yth=`<div class="ytB">▶️ <a href="${p.youtubeLink}" target="_blank">YouTube Par Puri Video Dekho</a></div>`;let fbh="";if(p.fbLink)fbh=`<div class="fbB">📘 <a href="${p.fbLink}" target="_blank">Facebook Par Video Dekho</a></div>`;const st=(p.title||"").replace(/'/g,"").replace(/"/g,"");const sm=(p.mediaUrl||"").replace(/'/g,"");const sy=(p.youtubeLink||"").replace(/'/g,"");const sf=(p.fbLink||"").replace(/'/g,"");h+=`<div class="card"><div style="display:flex;justify-content:space-between"><b>${p.name||"User"}</b>${mine?`<button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button>`:`<button style="background:#00ff88;color:#000;border:0;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px" onclick="toggleFollow('${p.uid}','${p.name}')">${fol?'Unfollow':'Follow'}</button>`}</div><div class="pt">⭐ ${p.title||""}</div><p>${p.text||""}</p>${mh}${yth}${fbh}<div class="act"><button class="${liked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button><button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button><button class="w" onclick="openWrite('${id}','${st}')">✍️ Write Video</button><button class="y" onclick="openYouTube('${st}')">▶️ YouTube Par Puri Dekho</button><button class="d" onclick="downloadVideo('${sm}','${st}','${sy}','${sf}')">⬇️ Download</button><button onclick="sharePost('${st}')">↗️ Share</button></div><div class="cm">${ch}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter')addComment('${id}')"></div></div>`;});document.getElementById('feed').innerHTML=h||"<p style='text-align:center;color:#888;padding:20px'>Abhi koi post nahi hai</p>";}
-window.openWrite=(id,txt)=>{document.getElementById('writePopup').classList.remove('hidden');document.getElementById('writeText').value=txt?txt+"\n\n---\nIs Video ki Naat yahan...":"";document.getElementById('writeTitle').innerText="✍️ Write Video - "+(txt?txt.slice(0,30):"Video");};
-window.closeWrite=()=>document.getElementById('writePopup').classList.add('hidden');
-window.chooseLang=(l)=>{currentLang=l;document.getElementById('writeSub').innerText="Language: "+l;document.getElementById('writeMsg').innerText=l+" select ho gayi!";};
-window.startVoice=()=>{const S=window.SpeechRecognition||window.webkitSpeechRecognition;if(!S){alert("Is mobile me support nahi");return;}const r=new S();r.lang=currentLang==='Urdu'?'ur-PK':'en-US';r.onresult=(e)=>{document.getElementById('writeText').value+=" "+e.results[0][0].transcript;};r.start();document.getElementById('writeMsg').innerText="Sun raha hoon... Bolo!";};
-window.saveWritten=()=>{const txt=document.getElementById('writeText').value;if(!txt){alert("Pehle kuch likho");return;}const b=new Blob([txt],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download="Vynk-"+currentLang+"-Naat.txt";a.click();localStorage.setItem('vynk_saved_'+Date.now(),txt);document.getElementById('writeMsg').innerText="✅ Save ho gaya!";};
-window.openYouTube=(title)=>{const n=(title||"").trim();if(!n){alert("Is post me Drama ka naam nahi hai!");return;}window.open("https://www.youtube.com/results?search_query="+encodeURIComponent('"'+n+'" full episode'),"_blank");};
-window.downloadVideo=async(mu,ti,yt,fb)=>{const link=yt||fb||"";if(link&&!mu){const go=confirm("Ye "+(fb?"Facebook":"YouTube")+" ki video hai. Downloader kholun?");if(go){try{await navigator.clipboard.writeText(link);}catch(e){}window.open("https://savefrom.net/","_blank");alert("Link copy ho gaya! Wahan paste karo.");}return;}if(!mu){alert("Is post me download wali video nahi hai.");return;}try{alert("⬇️ Download ho rahi hai...");const res=await fetch(mu);const blob=await res.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=(ti||"Vynk-Video")+".mp4";a.click();URL.revokeObjectURL(url);alert("✅ Ho gaya! Gallery me save ho gayi!");}catch(e){const a=document.createElement('a');a.href=mu;a.download=(ti||"Vynk-Video")+".mp4";a.click();}};
-window.deletePost=async(id)=>{if(!confirm("Delete karni hai?"))return;await deleteDoc(doc(db,"posts",id));};
-window.toggleLike=async(id)=>{const r=doc(db,"posts",id);const s=await getDoc(r);const l=s.data().likes||[];if(l.includes(currentUser.uid))await updateDoc(r,{likes:arrayRemove(currentUser.uid)});else await updateDoc(r,{likes:arrayUnion(currentUser.uid)});};
-window.focusComment=(id)=>document.getElementById('inp-'+id).focus();
-window.addComment=async(id)=>{const inp=document.getElementById('inp-'+id);const t=inp.value.trim();if(!t)return;await updateDoc(doc(db,"posts",id),{comments:arrayUnion({name:currentUser.displayName||"User",text:t})});inp.value="";};
-window.toggleFollow=async(tUid,tName)=>{if(tUid===currentUser.uid)return;const my=doc(db,"users",currentUser.uid);const tg=doc(db,"users",tUid);if(myFollowing.includes(tUid)){await updateDoc(my,{following:arrayRemove(tUid)});await updateDoc(tg,{followers:arrayRemove(currentUser.uid)});}else{await updateDoc(my,{following:arrayUnion(tUid)});const s=await getDoc(tg);if(!s.exists())await setDoc(tg,{name:tName,following:[],followers:[currentUser.uid]});else await updateDoc(tg,{followers:arrayUnion(currentUser.uid)});}};
-window.sharePost=async(t)=>{const txt="Vynk par dekho: "+t;if(navigator.share){try{await navigator.share({title:"Vynk",text:txt,url:location.href});}catch(e){}}else{navigator.clipboard.writeText(txt);alert("Link copy ho gaya!");}};
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VynkApp</title>
+<style>
+body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
+.header{background:#111;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+.header b{font-size:22px;color:#ffcc00}
+.post-box{background:#111;margin:10px;padding:12px;border-radius:12px}
+.post-box input, .post-box textarea{width:100%;background:#222;color:#fff;border:0;padding:10px;border-radius:8px;margin-bottom:8px;box-sizing:border-box}
+.post-box textarea{height:70px}
+.row{display:flex;gap:8px;align-items:center}
+.plus-btn{background:#222;color:#ffcc00;font-size:24px;width:45px;height:42px;border:0;border-radius:8px}
+.post-btn{flex:1;background:#25D366;color:#fff;border:0;padding:12px;border-radius:8px;font-size:16px;font-weight:bold}
+#preview img, #preview video{width:100%;border-radius:10px;margin-top:8px}
+#feed{padding:10px}
+.post{background:#111;padding:12px;border-radius:12px;margin-bottom:10px}
+.post h3{margin:0 0 5px 0;color:#ffcc00}
+.post p{margin:5px 0;white-space:pre-wrap}
+.post img, .post video{width:100%;border-radius:10px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="header"><b>Vynk</b><span>Account Banao</span></div>
+
+<div class="post-box">
+<input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho">
+<textarea id="postText" placeholder="Is bare me kuch likho..."></textarea>
+
+<input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="showPreview()">
+
+<div id="preview"></div>
+
+<div class="row">
+<button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button>
+<button class="post-btn" onclick="addPost()">Post Karo</button>
+</div>
+<p id="loginMsg" style="color:#ff5555;font-size:13px"></p>
+</div>
+
+<div id="feed"></div>
+
+<script>
+function showPreview(){
+  let file = document.getElementById('mediaInput').files[0];
+  if(!file) return;
+  let url = URL.createObjectURL(file);
+  let preview = document.getElementById('preview');
+  if(file.type.startsWith('video')){
+    preview.innerHTML = '<video src="'+url+'" controls></video>';
+  } else {
+    preview.innerHTML = '<img src="'+url+'">';
+  }
+}
+
+function addPost(){
+  let name = document.getElementById('dramaName').value;
+  let text = document.getElementById('postText').value;
+  let fileInput = document.getElementById('mediaInput');
+  let file = fileInput.files[0];
+
+  if(!text && !file && !name){
+    alert('Pehle kuch likho ya video lagao!');
+    return;
+  }
+
+  let mediaHTML = '';
+  if(file){
+    let url = URL.createObjectURL(file);
+    if(file.type.startsWith('video')){
+      mediaHTML = '<video src="'+url+'" controls></video>';
+    } else {
+      mediaHTML = '<img src="'+url+'">';
+    }
+  }
+
+  let newPost = document.createElement('div');
+  newPost.className = 'post';
+  newPost.innerHTML = (name ? '<h3>'+name+'</h3>' : '') + (text ? '<p>'+text+'</p>' : '') + mediaHTML;
+
+  let feed = document.getElementById('feed');
+  feed.prepend(newPost);
+
+  // saaf kar do
+  document.getElementById('dramaName').value = '';
+  document.getElementById('postText').value = '';
+  fileInput.value = '';
+  document.getElementById('preview').innerHTML = '';
+}
 </script>
 </body>
-                                         </html>
+</html>
