@@ -17,9 +17,19 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 #preview img, #preview video{width:100%;border-radius:10px;margin-top:8px}
 #feed{padding:10px}
 .post{background:#111;padding:12px;border-radius:12px;margin-bottom:10px}
-.post h3{margin:0 0 5px 0;color:#ffcc00}
-.post p{margin:5px 0;white-space:pre-wrap}
+.post-top{display:flex;justify-content:space-between;align-items:center}
+.post-top h3{margin:0;color:#ffcc00}
+.follow-btn{background:#ffcc00;color:#000;border:0;padding:7px 14px;border-radius:20px;font-weight:bold}
+.follow-btn.following{background:#222;color:#fff}
+.post p{margin:8px 0;white-space:pre-wrap}
 .post img, .post video{width:100%;border-radius:10px;margin-top:8px}
+.actions{display:flex;gap:8px;margin-top:10px;border-top:1px solid #222;padding-top:10px}
+.actions button{flex:1;background:#222;color:#fff;border:0;padding:9px;border-radius:8px;font-size:14px}
+.actions button.liked{background:#ff3b30;color:#fff}
+.comment-box{display:none;margin-top:10px}
+.comment-box input{width:100%;background:#222;color:#fff;border:0;padding:9px;border-radius:8px;box-sizing:border-box}
+.comment-list{margin-top:8px;font-size:14px}
+.comment-list div{background:#222;padding:7px 10px;border-radius:8px;margin-bottom:5px}
 </style>
 </head>
 <body>
@@ -29,67 +39,101 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 <div class="post-box">
 <input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho">
 <textarea id="postText" placeholder="Is bare me kuch likho..."></textarea>
-
 <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="showPreview()">
-
 <div id="preview"></div>
-
 <div class="row">
 <button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button>
 <button class="post-btn" onclick="addPost()">Post Karo</button>
 </div>
-<p id="loginMsg" style="color:#ff5555;font-size:13px"></p>
 </div>
 
 <div id="feed"></div>
 
 <script>
+let posts = JSON.parse(localStorage.getItem('vynk_posts') || '[]');
+let previewData = '';
+
+function savePosts(){ localStorage.setItem('vynk_posts', JSON.stringify(posts)); }
+
 function showPreview(){
   let file = document.getElementById('mediaInput').files[0];
   if(!file) return;
-  let url = URL.createObjectURL(file);
-  let preview = document.getElementById('preview');
-  if(file.type.startsWith('video')){
-    preview.innerHTML = '<video src="'+url+'" controls></video>';
-  } else {
-    preview.innerHTML = '<img src="'+url+'">';
-  }
+  let reader = new FileReader();
+  reader.onload = function(e){
+    previewData = e.target.result;
+    let isVideo = file.type.startsWith('video');
+    document.getElementById('preview').innerHTML = isVideo ? '<video src="'+previewData+'" controls></video>' : '<img src="'+previewData+'">';
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderPosts(){
+  let feed = document.getElementById('feed');
+  feed.innerHTML = '';
+  posts.forEach(function(post, index){
+    let div = document.createElement('div');
+    div.className = 'post';
+    let mediaHTML = '';
+    if(post.media){
+      if(post.isVideo) mediaHTML = '<video src="'+post.media+'" controls></video>';
+      else mediaHTML = '<img src="'+post.media+'">';
+    }
+    let commentsHTML = post.comments.map(c=>'<div>'+c+'</div>').join('');
+    div.innerHTML =
+    '<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+',this)">'+(post.follow?'Following ✓':'Follow')+'</button></div>' +
+    (post.text ? '<p>'+post.text+'</p>' : '') + mediaHTML +
+    '<div class="actions">' +
+      '<button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+',this)">❤️ Like <span>'+post.likes+'</span></button>' +
+      '<button onclick="toggleComment(this)">💬 Comment</button>' +
+      '<button onclick="sharePost('+index+')">↗️ Share</button>' +
+    '</div>' +
+    '<div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
+    feed.appendChild(div);
+  });
 }
 
 function addPost(){
-  let name = document.getElementById('dramaName').value;
+  let nameInput = document.getElementById('dramaName').value;
+  let name = nameInput || 'Vynk User';
   let text = document.getElementById('postText').value;
-  let fileInput = document.getElementById('mediaInput');
-  let file = fileInput.files[0];
-
-  if(!text && !file && !name){
-    alert('Pehle kuch likho ya video lagao!');
-    return;
-  }
-
-  let mediaHTML = '';
-  if(file){
-    let url = URL.createObjectURL(file);
-    if(file.type.startsWith('video')){
-      mediaHTML = '<video src="'+url+'" controls></video>';
-    } else {
-      mediaHTML = '<img src="'+url+'">';
-    }
-  }
-
-  let newPost = document.createElement('div');
-  newPost.className = 'post';
-  newPost.innerHTML = (name ? '<h3>'+name+'</h3>' : '') + (text ? '<p>'+text+'</p>' : '') + mediaHTML;
-
-  let feed = document.getElementById('feed');
-  feed.prepend(newPost);
-
-  // saaf kar do
+  let file = document.getElementById('mediaInput').files[0];
+  if(!text && !file && !nameInput){ alert('Pehle kuch likho ya video lagao!'); return; }
+  let newPost = {name:name, text:text, media:previewData || '', isVideo: file ? file.type.startsWith('video') : false, likes:0, liked:false, follow:false, comments:[]};
+  posts.unshift(newPost);
+  savePosts();
+  renderPosts();
   document.getElementById('dramaName').value = '';
   document.getElementById('postText').value = '';
-  fileInput.value = '';
+  document.getElementById('mediaInput').value = '';
   document.getElementById('preview').innerHTML = '';
+  previewData = '';
 }
+
+function toggleFollow(index, btn){
+  posts[index].follow = !posts[index].follow;
+  savePosts(); renderPosts();
+}
+function likePost(index, btn){
+  if(posts[index].liked){ posts[index].liked=false; posts[index].likes--; }
+  else { posts[index].liked=true; posts[index].likes++; }
+  savePosts(); renderPosts();
+}
+function toggleComment(btn){
+  let box = btn.closest('.post').querySelector('.comment-box');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+function addComment(index, input){
+  if(!input.value) return;
+  posts[index].comments.push(input.value);
+  savePosts(); renderPosts();
+}
+function sharePost(index){
+  let text = posts[index].text || 'Vynk Post';
+  if(navigator.share){ navigator.share({title:'Vynk', text:text}); }
+  else { alert('Share kar do: ' + text); }
+}
+
+renderPosts();
 </script>
 </body>
 </html>
