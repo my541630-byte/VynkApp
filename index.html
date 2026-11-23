@@ -10,13 +10,17 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .top{position:sticky;top:0;background:#000;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;z-index:10;border-bottom:1px solid #222}
 .logo{font-size:26px;font-weight:900;color:#00ff88}
 .top button{background:#222;color:#fff;border:0;padding:8px 14px;border-radius:20px}
+.dbMeter{background:#1a2a22;margin:10px;padding:10px;border-radius:10px;font-size:13px;border:1px solid #00ff88}
+.dbMeter b{color:#00ff88}
 .post-box{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}
-.post-box input{width:100%;background:#222;border:0;padding:12px;border-radius:20px;color:#fff;outline:none}
-.post-box button{margin-top:10px;background:#00ff88;color:#000;border:0;padding:10px 18px;border-radius:20px;font-weight:700;width:100%}
+.post-box input{width:100%;background:#222;border:0;padding:12px;border-radius:10px;color:#fff;outline:none;margin-top:8px}
+.post-box input.titleInput{border:2px solid #00ff88;background:#1a2a22}
+.post-box button{margin-top:10px;background:#00ff88;color:#000;border:0;padding:12px 18px;border-radius:20px;font-weight:700;width:100%;font-size:15px}
 .card{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}
 .card .head{display:flex;justify-content:space-between;align-items:center}
 .card b{color:#00ff88}
-.card p{margin:10px 0;line-height:1.5;font-size:15px}
+.card p{margin:8px 0;line-height:1.5;font-size:15px}
+.card .postTitle{font-size:16px;font-weight:800;color:#fff;margin-top:6px}
 .followBtn{background:#00ff88;color:#000;border:0;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px}
 .followBtn.off{background:#222;color:#fff}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;border-top:1px solid #333;padding-top:10px}
@@ -46,6 +50,8 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .plusBtn{position:fixed;bottom:80px;right:15px;width:55px;height:55px;border-radius:50%;background:#00ff88;color:#000;font-size:28px;border:0;font-weight:900;z-index:30;box-shadow:0 4px 15px rgba(0,255,136,.4)}
 .postImg{width:100%;border-radius:10px;margin-top:8px}
 .postVideo{width:100%;border-radius:10px;margin-top:8px;max-height:320px}
+.ytBox{background:#000;padding:10px;border-radius:10px;margin-top:10px;border:1px solid #ff5555}
+.ytBox a{color:#ff5555;font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
@@ -71,20 +77,26 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
     <div class="logo">Vynk</div>
     <button onclick="doLogout()">Logout</button>
   </div>
+
+  <!-- DATABASE METER -->
+  <div class="dbMeter" id="dbMeter">📊 Database check ho raha hai...</div>
+
   <div id="profileArea"></div>
+
   <div class="post-box">
-    <input id="postText" placeholder="Kya soch rahe ho? Naat, Drama, Video ka naam...">
-    <input type="file" id="mediaInput" accept="image/*,video/*" style="margin-top:10px;color:#aaa">
-    <p style="font-size:12px;color:#888;margin-top:5px">Photo ya 10 min tak ki Video chun sakte ho</p>
+    <b style="color:#00ff88">✍️ Nayi Post</b>
+    <input id="postTitle" class="titleInput" placeholder="⭐ Drama / Film / Naat ka PURA Naam - Jese: Kurulus Osman Episode 150">
+    <input id="postText" placeholder="Is bare me kuch likho...">
+    <input id="youtubeLink" placeholder="🔗 1 Ghante ki Video ke liye YouTube Link yahan paste karo (Agar hai to)">
+    <input type="file" id="mediaInput" accept="image/*,video/*" style="color:#aaa">
+    <p style="font-size:12px;color:#888;margin-top:5px">Photo ya 10 min tak ki Video chun sakte ho. 1 Ghante ki Video ke liye YouTube Link use karo, Database Full nahi hoga.</p>
     <button onclick="addPost()">Post Karo</button>
   </div>
   <div id="feed"></div>
 </div>
 
-<!-- (+) Plus Button -->
 <button id="plusBtn" class="plusBtn hidden" onclick="document.getElementById('mediaInput').click();window.scrollTo({top:0,behavior:'smooth'})">+</button>
 
-<!-- Write Video Popup -->
 <div id="writePopup" class="popup hidden">
   <b id="writeTitle" style="color:#00ff88">✍️ Write Video</b>
   <p id="writeSub" style="font-size:13px;color:#aaa;margin-top:5px">Language chuno:</p>
@@ -93,7 +105,7 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
     <button style="background:#fff" onclick="chooseLang('English')">English</button>
     <button style="background:#222;color:#fff" onclick="closeWrite()">Band Karo</button>
   </div>
-  <textarea id="writeText" placeholder="Yahan likhi hui Naat / Video ka text aayega... Tum khud bhi likh sakte ho ya bol kar likh sakte ho"></textarea>
+  <textarea id="writeText" placeholder="Yahan likhi hui Naat / Video ka text aayega..."></textarea>
   <button style="background:#00ff88" onclick="saveWritten()">💾 Save Karo</button>
   <button style="background:#222;color:#fff" onclick="startVoice()">🎤 Bol Kar Likho</button>
   <p id="writeMsg" style="font-size:12px;color:#00ff88;margin-top:8px"></p>
@@ -128,6 +140,7 @@ let currentUser = null;
 let myFollowing = [];
 let currentWritePost = null;
 let currentLang = "Urdu";
+let totalPostsCount = 0;
 
 onAuthStateChanged(auth, async (user)=>{
   document.getElementById('loadingScreen').classList.add('hidden');
@@ -173,16 +186,30 @@ window.doLogout = ()=> signOut(auth);
 window.showHome = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 window.showProfile = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 
-// ===== POST + PHOTO/VIDEO =====
+// DATABASE METER - Andaza
+function updateDbMeter(){
+  // Har post ka andaza ~2MB. 1GB me ~500 posts aati hain. Is se andaza lagta hai.
+  const percent = Math.min(100, Math.round((totalPostsCount / 500) * 100));
+  let status = "✅ Abhi Bilkul Safe Hai";
+  let color = "#00ff88";
+  if(percent > 70){ status = "⚠️ Thora Bhar Raha Hai - Sirf YouTube Link Use Karo"; color = "#ffaa00"; }
+  if(percent > 90){ status = "🛑 Bilkul Full Hone Wala Hai - Video Mat Dalo"; color = "#ff5555"; }
+  document.getElementById('dbMeter').innerHTML = `📊 <b>Database:</b> ${percent}% bhara hua • Posts: ${totalPostsCount} • <span style="color:${color}">${status}</span><br><span style="font-size:11px;color:#aaa">Ye andaza hai. Paka pata karne ke liye Firebase Console > Usage me dekho.</span>`;
+}
+
 window.addPost = async ()=>{
-  const text = document.getElementById('postText').value;
+  const title = document.getElementById('postTitle').value.trim();
+  const text = document.getElementById('postText').value.trim();
+  const youtubeLink = document.getElementById('youtubeLink').value.trim();
   const fileInput = document.getElementById('mediaInput');
-  if(!text && !fileInput.files[0]) return;
+  if(!title){ alert("⭐ Pehle Drama / Film / Naat ka PURA Naam likho! Is ke baghair YouTube sahi drama nahi dhoondega."); return; }
+  if(!text && !fileInput.files[0] && !youtubeLink){ alert("Kuch to likho ya Video chuno"); return; }
   let mediaUrl = "";
   let mediaType = "";
   if(fileInput.files[0]){
     const file = fileInput.files[0];
-    // 10 min check - video ke liye
+    // Video size check - 10 min se zyada bari file ko roko
+    if(file.size > 50 * 1024 * 1024){ alert("Ye Video bahut bari hai! 10 min se choti Video dalo, ya YouTube Link use karo."); return; }
     mediaType = file.type.startsWith('video') ? 'video' : 'image';
     mediaUrl = await new Promise((res)=>{
       const r = new FileReader();
@@ -190,9 +217,12 @@ window.addPost = async ()=>{
       r.readAsDataURL(file);
     });
   }
-  await addDoc(collection(db,"posts"),{ text, mediaUrl, mediaType, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
+  await addDoc(collection(db,"posts"),{ title, text, youtubeLink, mediaUrl, mediaType, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
+  document.getElementById('postTitle').value = "";
   document.getElementById('postText').value = "";
+  document.getElementById('youtubeLink').value = "";
   fileInput.value = "";
+  alert("✅ Post ho gayi!");
 };
 
 function loadProfile(){
@@ -207,6 +237,8 @@ function loadProfile(){
 function loadFeed(){
   const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
   onSnapshot(q,(snap)=>{
+    totalPostsCount = snap.size;
+    updateDbMeter();
     let html = "";
     snap.forEach(d=>{
       const p = d.data();
@@ -223,21 +255,27 @@ function loadFeed(){
         if(p.mediaType === 'video') mediaHtml = `<video class="postVideo" controls src="${p.mediaUrl}"></video>`;
         else mediaHtml = `<img class="postImg" src="${p.mediaUrl}">`;
       }
-      // Safe text for YouTube search
+      let ytLinkHtml = "";
+      if(p.youtubeLink){
+        ytLinkHtml = `<div class="ytBox">▶️ <a href="${p.youtubeLink}" target="_blank">YouTube Par Puri Video Dekho (1 Ghante Wali)</a></div>`;
+      }
+      const safeTitle = (p.title||"").replace(/'/g,"").replace(/"/g,"");
       const safeText = (p.text||"").replace(/'/g,"").replace(/"/g,"");
       html += `<div class="card">
         <div class="head">
           <b>${p.name||"User"}</b>
-          ${isMine ? `<span><button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button></span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')">${isFollowing?'Unfollow':'Follow'}</button>`}
+          ${isMine ? `<span><button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button></span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')"> ${isFollowing?'Unfollow':'Follow'}</button>`}
         </div>
+        <div class="postTitle">⭐ ${p.title||""}</div>
         <p>${p.text||""}</p>
         ${mediaHtml}
+        ${ytLinkHtml}
         <div class="actions">
           <button class="${isLiked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button>
           <button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button>
-          <button class="writeBtn" onclick="openWrite('${id}','${safeText}')">✍️ Write Video</button>
-          <button class="ytBtn" onclick="openYouTube('${safeText}')">▶️ YouTube Par Puri Dekho</button>
-          <button onclick="sharePost('${safeText}')">↗️ Share</button>
+          <button class="writeBtn" onclick="openWrite('${id}','${safeTitle}')">✍️ Write Video</button>
+          <button class="ytBtn" onclick="openYouTube('${safeTitle}')">▶️ YouTube Par Puri Dekho</button>
+          <button onclick="sharePost('${safeTitle}')">↗️ Share</button>
         </div>
         <div class="comments" id="c-${id}">${commentsHtml}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter') addComment('${id}')"></div>
       </div>`;
@@ -246,7 +284,6 @@ function loadFeed(){
   });
 }
 
-// ===== 2. WRITE VIDEO =====
 window.openWrite = (postId, postText)=>{
   currentWritePost = postId;
   document.getElementById('writePopup').classList.remove('hidden');
@@ -274,20 +311,23 @@ window.startVoice = ()=>{
 window.saveWritten = ()=>{
   const txt = document.getElementById('writeText').value;
   if(!txt){ alert("Pehle kuch likho"); return; }
-  // Mobile me download / save
   const blob = new Blob([txt], {type:'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = "Vynk-" + currentLang + "-Naat.txt";
   a.click();
-  // Local save bhi
   localStorage.setItem('vynk_saved_' + Date.now(), txt);
   document.getElementById('writeMsg').innerText = "✅ Save ho gaya! Tumhare mobile me download ho gaya.";
 };
 
-// ===== 3. YOUTUBE PAR PURI FILM / DRAMA =====
-window.openYouTube = (text)=>{
-  const q = encodeURIComponent(text + " full drama / full movie");
+// YouTube - Ab Title se dhoondta hai, ghalat drama nahi aayega
+window.openYouTube = (title)=>{
+  const searchName = (title || "").trim();
+  if(!searchName){
+    alert("Is post me Drama ka naam nahi likha hua!");
+    return;
+  }
+  const q = encodeURIComponent('"' + searchName + '" full episode');
   window.open("https://www.youtube.com/results?search_query=" + q, "_blank");
 };
 
@@ -344,4 +384,4 @@ window.sharePost = async (text)=>{
 };
 </script>
 </body>
-      </html>
+    </html>
