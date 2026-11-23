@@ -52,17 +52,45 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 <script>
 let posts = JSON.parse(localStorage.getItem('vynk_posts') || '[]');
 let previewData = '';
+let previewIsVideo = false;
 
-function savePosts(){ localStorage.setItem('vynk_posts', JSON.stringify(posts)); }
+function savePosts(){
+  try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); }
+  catch(e){ alert('Storage full ho gaya! Purani post delete karo ya choti video lagao.'); }
+}
 
 function showPreview(){
   let file = document.getElementById('mediaInput').files[0];
   if(!file) return;
+  // 10 MB limit
+  if(file.size > 10 * 1024 * 1024){
+    alert('Video/Photo boht bari hai! 10 MB se choti lagao. 1 ghante ki video nahi lagegi.');
+    document.getElementById('mediaInput').value = '';
+    return;
+  }
+  if(file.type.startsWith('video')){
+    let video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = function(){
+      if(video.duration > 30){
+        alert('Video 30 second se lambi hai! Choti video lagao.');
+        document.getElementById('mediaInput').value = '';
+        return;
+      }
+      readFile(file);
+    };
+    video.src = URL.createObjectURL(file);
+  } else {
+    readFile(file);
+  }
+}
+
+function readFile(file){
   let reader = new FileReader();
   reader.onload = function(e){
     previewData = e.target.result;
-    let isVideo = file.type.startsWith('video');
-    document.getElementById('preview').innerHTML = isVideo ? '<video src="'+previewData+'" controls></video>' : '<img src="'+previewData+'">';
+    previewIsVideo = file.type.startsWith('video');
+    document.getElementById('preview').innerHTML = previewIsVideo ? '<video src="'+previewData+'" controls></video>' : '<img src="'+previewData+'">';
   };
   reader.readAsDataURL(file);
 }
@@ -98,7 +126,7 @@ function addPost(){
   let text = document.getElementById('postText').value;
   let file = document.getElementById('mediaInput').files[0];
   if(!text && !file && !nameInput){ alert('Pehle kuch likho ya video lagao!'); return; }
-  let newPost = {name:name, text:text, media:previewData || '', isVideo: file ? file.type.startsWith('video') : false, likes:0, liked:false, follow:false, comments:[]};
+  let newPost = {name:name, text:text, media:previewData || '', isVideo: previewIsVideo, likes:0, liked:false, follow:false, comments:[]};
   posts.unshift(newPost);
   savePosts();
   renderPosts();
@@ -107,12 +135,10 @@ function addPost(){
   document.getElementById('mediaInput').value = '';
   document.getElementById('preview').innerHTML = '';
   previewData = '';
+  previewIsVideo = false;
 }
 
-function toggleFollow(index, btn){
-  posts[index].follow = !posts[index].follow;
-  savePosts(); renderPosts();
-}
+function toggleFollow(index, btn){ posts[index].follow = !posts[index].follow; savePosts(); renderPosts(); }
 function likePost(index, btn){
   if(posts[index].liked){ posts[index].liked=false; posts[index].likes--; }
   else { posts[index].liked=true; posts[index].likes++; }
@@ -132,7 +158,6 @@ function sharePost(index){
   if(navigator.share){ navigator.share({title:'Vynk', text:text}); }
   else { alert('Share kar do: ' + text); }
 }
-
 renderPosts();
 </script>
 </body>
