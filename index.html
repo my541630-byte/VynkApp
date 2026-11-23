@@ -34,12 +34,23 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .nav button{background:none;border:0;color:#fff;font-size:14px}
 .profileBox{background:#1a1a1a;margin:10px;padding:15px;border-radius:12px;text-align:center}
 .profileBox h2{color:#00ff88}
+.loadingScreen{padding:80px 20px;text-align:center}
+.loadingScreen h1{font-size:44px;color:#00ff88}
+.spinner{width:50px;height:50px;border:5px solid #222;border-top:5px solid #00ff88;border-radius:50%;margin:25px auto;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
+<!-- LOADING - Pehle yehi dikhega -->
+<div id="loadingScreen" class="loadingScreen">
+  <h1>Vynk</h1>
+  <div class="spinner"></div>
+  <p style="color:#aaa">Loading... Apni Duniya Khul Rahi Hai</p>
+</div>
+
 <!-- LOGIN -->
-<div id="loginScreen" class="login">
+<div id="loginScreen" class="login hidden">
   <h1>Vynk</h1>
   <p style="color:#aaa;margin-bottom:15px">Apni Duniya, Apne Log</p>
   <input id="nameInput" placeholder="Apna Naam">
@@ -55,14 +66,11 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
     <div class="logo">Vynk</div>
     <button onclick="doLogout()">Logout</button>
   </div>
-
   <div id="profileArea"></div>
-
   <div class="post-box">
     <input id="postText" placeholder="Kya soch rahe ho?">
     <button onclick="addPost()">Post Karo</button>
   </div>
-
   <div id="feed"></div>
 </div>
 
@@ -95,12 +103,13 @@ let currentUser = null;
 let myFollowing = [];
 
 onAuthStateChanged(auth, async (user)=>{
+  // Pehle Loading ko band karo
+  document.getElementById('loadingScreen').classList.add('hidden');
   if(user){
     currentUser = user;
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('homeScreen').classList.remove('hidden');
     document.getElementById('bottomNav').classList.remove('hidden');
-    // Apna follow record banao agar nahi hai
     const myRef = doc(db,"users",user.uid);
     const snap = await getDoc(myRef);
     if(!snap.exists()){
@@ -144,7 +153,6 @@ window.addPost = async ()=>{
 };
 
 function loadProfile(){
-  const q = query(collection(db,"posts"), orderBy("createdAt","desc"));
   onSnapshot(doc(db,"users",currentUser.uid),(d)=>{
     if(!d.exists()) return;
     const u = d.data();
@@ -216,7 +224,6 @@ window.toggleFollow = async (targetUid, targetName)=>{
     await updateDoc(targetRef,{followers: arrayRemove(currentUser.uid)});
   } else {
     await updateDoc(myRef,{following: arrayUnion(targetUid)});
-    // Agar samne wale ka record nahi hai to bana do
     const tSnap = await getDoc(targetRef);
     if(!tSnap.exists()){ await setDoc(targetRef,{name:targetName, following:[], followers:[currentUser.uid]}); }
     else { await updateDoc(targetRef,{followers: arrayUnion(currentUser.uid)}); }
@@ -234,4 +241,4 @@ window.sharePost = async (text)=>{
 };
 </script>
 </body>
-</html>
+  </html>
