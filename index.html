@@ -32,6 +32,7 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 .actions{display:flex;gap:8px;margin-top:10px;border-top:1px solid #222;padding-top:10px}
 .actions button{flex:1;background:#222;color:#fff;border:0;padding:9px;border-radius:8px;font-size:14px}
 .actions button.liked{background:#ff3b30;color:#fff}
+.actions button.delete-btn{color:#ff6b6b}
 .comment-box{display:none;margin-top:10px}
 .comment-box input{width:100%;background:#222;color:#fff;border:0;padding:9px;border-radius:8px;box-sizing:border-box}
 .comment-list{margin-top:8px;font-size:14px}
@@ -124,7 +125,7 @@ function renderPosts(){
     let div=document.createElement('div'); div.className='post';
     let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
     let commentsHTML=post.comments.map(c=>'<div>'+c+'</div>').join('');
-    div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button onclick="sharePost('+index+')">↗️ Share</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
+    div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
     feed.appendChild(div);
   });
 }
@@ -142,7 +143,13 @@ function toggleFollow(index){ posts[index].follow=!posts[index].follow; savePost
 function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} savePosts(); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
 function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); savePosts(); renderPosts(); }
-function sharePost(index){ let text=posts[index].text||'Vynk Post'; if(navigator.share){navigator.share({title:'Vynk',text:text});} else {alert(text);} }
+function deletePost(index){
+  if(confirm('Ye post delete kar dun?')){
+    posts.splice(index,1);
+    savePosts();
+    renderPosts();
+  }
+}
 </script>
 </body>
-      </html>
+  </html>
