@@ -10,6 +10,9 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .top{position:sticky;top:0;background:#000;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;z-index:10;border-bottom:1px solid #222}
 .logo{font-size:26px;font-weight:900;color:#00ff88}
 .top button{background:#222;color:#fff;border:0;padding:8px 14px;border-radius:20px}
+.searchBar{background:#1a1a1a;margin:10px;padding:10px;border-radius:12px;display:flex;gap:8px}
+.searchBar input{flex:1;background:#222;border:0;padding:12px;border-radius:20px;color:#fff;outline:none}
+.searchBar button{background:#00ff88;color:#000;border:0;padding:10px 16px;border-radius:20px;font-weight:800}
 .dbMeter{background:#1a2a22;margin:10px;padding:10px;border-radius:10px;font-size:13px;border:1px solid #00ff88}
 .dbMeter b{color:#00ff88}
 .post-box{background:#1a1a1a;margin:10px;padding:12px;border-radius:12px}
@@ -28,6 +31,7 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .actions button.liked{color:#ff3b5c;background:#2a1218}
 .actions button.writeBtn{background:#1a2a22;color:#00ff88}
 .actions button.ytBtn{background:#2a1212;color:#ff5555}
+.actions button.dlBtn{background:#122a1e;color:#00ff88;border:1px solid #00ff88;font-weight:800}
 .comments{margin-top:10px}
 .comments input{width:100%;background:#222;border:0;padding:10px;border-radius:20px;color:#fff;outline:none;margin-top:8px}
 .commentItem{background:#222;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:13px}
@@ -52,6 +56,8 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
 .postVideo{width:100%;border-radius:10px;margin-top:8px;max-height:320px}
 .ytBox{background:#000;padding:10px;border-radius:10px;margin-top:10px;border:1px solid #ff5555}
 .ytBox a{color:#ff5555;font-weight:700;text-decoration:none}
+.fbBox{background:#000;padding:10px;border-radius:10px;margin-top:10px;border:1px solid #1877F2}
+.fbBox a{color:#5da9ff;font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
@@ -78,7 +84,13 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
     <button onclick="doLogout()">Logout</button>
   </div>
 
-  <!-- DATABASE METER -->
+  <!-- SEARCH BAR - UPAR WALA -->
+  <div class="searchBar">
+    <input id="searchInput" placeholder="🔍 Search karo - Jese: Kurulus Osman, Naat, Jaan Nisar..." onkeydown="if(event.key==='Enter') doSearch()">
+    <button onclick="doSearch()">🔍 Search</button>
+  </div>
+  <div style="text-align:center"><button onclick="clearSearch()" style="background:#222;color:#aaa;border:0;padding:6px 12px;border-radius:20px;font-size:12px" id="clearSearchBtn" class="hidden">❌ Search Khatam Karo - Sab Dikhao</button></div>
+
   <div class="dbMeter" id="dbMeter">📊 Database check ho raha hai...</div>
 
   <div id="profileArea"></div>
@@ -87,9 +99,10 @@ body{background:#0f0f0f;color:#fff;padding-bottom:70px}
     <b style="color:#00ff88">✍️ Nayi Post</b>
     <input id="postTitle" class="titleInput" placeholder="⭐ Drama / Film / Naat ka PURA Naam - Jese: Kurulus Osman Episode 150">
     <input id="postText" placeholder="Is bare me kuch likho...">
-    <input id="youtubeLink" placeholder="🔗 1 Ghante ki Video ke liye YouTube Link yahan paste karo (Agar hai to)">
+    <input id="youtubeLink" placeholder="🔗 YouTube ka Link yahan paste karo (1 Ghante wali video ke liye)">
+    <input id="fbLink" placeholder="🔗 Facebook ka Link yahan paste karo (Agar Facebook se share kar rahe ho)">
     <input type="file" id="mediaInput" accept="image/*,video/*" style="color:#aaa">
-    <p style="font-size:12px;color:#888;margin-top:5px">Photo ya 10 min tak ki Video chun sakte ho. 1 Ghante ki Video ke liye YouTube Link use karo, Database Full nahi hoga.</p>
+    <p style="font-size:12px;color:#888;margin-top:5px">Photo ya 10 min tak ki Video chun sakte ho. 1 Ghante ki Video ke liye YouTube / Facebook Link use karo, Database Full nahi hoga.</p>
     <button onclick="addPost()">Post Karo</button>
   </div>
   <div id="feed"></div>
@@ -141,6 +154,8 @@ let myFollowing = [];
 let currentWritePost = null;
 let currentLang = "Urdu";
 let totalPostsCount = 0;
+let allPosts = [];
+let searchQuery = "";
 
 onAuthStateChanged(auth, async (user)=>{
   document.getElementById('loadingScreen').classList.add('hidden');
@@ -186,9 +201,22 @@ window.doLogout = ()=> signOut(auth);
 window.showHome = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 window.showProfile = ()=>{ window.scrollTo({top:0, behavior:'smooth'}); };
 
-// DATABASE METER - Andaza
+// SEARCH - UPAR WALA
+window.doSearch = ()=>{
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!searchQuery){ alert("Pehle kuch likho, jese: Kurulus Osman"); return; }
+  document.getElementById('clearSearchBtn').classList.remove('hidden');
+  renderFeed();
+  window.scrollTo({top:200, behavior:'smooth'});
+};
+window.clearSearch = ()=>{
+  searchQuery = "";
+  document.getElementById('searchInput').value = "";
+  document.getElementById('clearSearchBtn').classList.add('hidden');
+  renderFeed();
+};
+
 function updateDbMeter(){
-  // Har post ka andaza ~2MB. 1GB me ~500 posts aati hain. Is se andaza lagta hai.
   const percent = Math.min(100, Math.round((totalPostsCount / 500) * 100));
   let status = "✅ Abhi Bilkul Safe Hai";
   let color = "#00ff88";
@@ -201,15 +229,15 @@ window.addPost = async ()=>{
   const title = document.getElementById('postTitle').value.trim();
   const text = document.getElementById('postText').value.trim();
   const youtubeLink = document.getElementById('youtubeLink').value.trim();
+  const fbLink = document.getElementById('fbLink').value.trim();
   const fileInput = document.getElementById('mediaInput');
   if(!title){ alert("⭐ Pehle Drama / Film / Naat ka PURA Naam likho! Is ke baghair YouTube sahi drama nahi dhoondega."); return; }
-  if(!text && !fileInput.files[0] && !youtubeLink){ alert("Kuch to likho ya Video chuno"); return; }
+  if(!text && !fileInput.files[0] && !youtubeLink && !fbLink){ alert("Kuch to likho ya Video chuno"); return; }
   let mediaUrl = "";
   let mediaType = "";
   if(fileInput.files[0]){
     const file = fileInput.files[0];
-    // Video size check - 10 min se zyada bari file ko roko
-    if(file.size > 50 * 1024 * 1024){ alert("Ye Video bahut bari hai! 10 min se choti Video dalo, ya YouTube Link use karo."); return; }
+    if(file.size > 50 * 1024 * 1024){ alert("Ye Video bahut bari hai! 10 min se choti Video dalo, ya YouTube / Facebook Link use karo."); return; }
     mediaType = file.type.startsWith('video') ? 'video' : 'image';
     mediaUrl = await new Promise((res)=>{
       const r = new FileReader();
@@ -217,10 +245,11 @@ window.addPost = async ()=>{
       r.readAsDataURL(file);
     });
   }
-  await addDoc(collection(db,"posts"),{ title, text, youtubeLink, mediaUrl, mediaType, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
+  await addDoc(collection(db,"posts"),{ title, text, youtubeLink, fbLink, mediaUrl, mediaType, name: currentUser.displayName || "User", uid: currentUser.uid, createdAt: serverTimestamp(), likes: [], comments: [] });
   document.getElementById('postTitle').value = "";
   document.getElementById('postText').value = "";
   document.getElementById('youtubeLink').value = "";
+  document.getElementById('fbLink').value = "";
   fileInput.value = "";
   alert("✅ Post ho gayi!");
 };
@@ -239,49 +268,72 @@ function loadFeed(){
   onSnapshot(q,(snap)=>{
     totalPostsCount = snap.size;
     updateDbMeter();
-    let html = "";
-    snap.forEach(d=>{
-      const p = d.data();
-      const id = d.id;
-      const isMine = p.uid === currentUser.uid;
-      const isFollowing = myFollowing.includes(p.uid);
-      const isLiked = (p.likes||[]).includes(currentUser.uid);
-      let commentsHtml = "";
-      (p.comments||[]).forEach(c=>{
-        commentsHtml += `<div class="commentItem"><b>${c.name}:</b> ${c.text}</div>`;
-      });
-      let mediaHtml = "";
-      if(p.mediaUrl){
-        if(p.mediaType === 'video') mediaHtml = `<video class="postVideo" controls src="${p.mediaUrl}"></video>`;
-        else mediaHtml = `<img class="postImg" src="${p.mediaUrl}">`;
-      }
-      let ytLinkHtml = "";
-      if(p.youtubeLink){
-        ytLinkHtml = `<div class="ytBox">▶️ <a href="${p.youtubeLink}" target="_blank">YouTube Par Puri Video Dekho (1 Ghante Wali)</a></div>`;
-      }
-      const safeTitle = (p.title||"").replace(/'/g,"").replace(/"/g,"");
-      const safeText = (p.text||"").replace(/'/g,"").replace(/"/g,"");
-      html += `<div class="card">
-        <div class="head">
-          <b>${p.name||"User"}</b>
-          ${isMine ? `<span><button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button></span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')"> ${isFollowing?'Unfollow':'Follow'}</button>`}
-        </div>
-        <div class="postTitle">⭐ ${p.title||""}</div>
-        <p>${p.text||""}</p>
-        ${mediaHtml}
-        ${ytLinkHtml}
-        <div class="actions">
-          <button class="${isLiked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button>
-          <button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button>
-          <button class="writeBtn" onclick="openWrite('${id}','${safeTitle}')">✍️ Write Video</button>
-          <button class="ytBtn" onclick="openYouTube('${safeTitle}')">▶️ YouTube Par Puri Dekho</button>
-          <button onclick="sharePost('${safeTitle}')">↗️ Share</button>
-        </div>
-        <div class="comments" id="c-${id}">${commentsHtml}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter') addComment('${id}')"></div>
-      </div>`;
-    });
-    document.getElementById('feed').innerHTML = html || "<p style='text-align:center;color:#888;padding:20px'>Abhi koi post nahi hai, pehli post tum karo</p>";
+    allPosts = [];
+    snap.forEach(d=>{ allPosts.push({id:d.id, ...d.data()}); });
+    renderFeed();
   });
+}
+
+function renderFeed(){
+  let list = allPosts;
+  if(searchQuery){
+    list = allPosts.filter(p=>{
+      const hay = ((p.title||"") + " " + (p.text||"") + " " + (p.name||"")).toLowerCase();
+      return hay.includes(searchQuery);
+    });
+  }
+  let html = "";
+  if(searchQuery){
+    html += `<p style='text-align:center;color:#00ff88;padding:10px'>🔍 Search Result: "${searchQuery}" - ${list.length} mili</p>`;
+  }
+  list.forEach(p=>{
+    const id = p.id;
+    const isMine = p.uid === currentUser.uid;
+    const isFollowing = myFollowing.includes(p.uid);
+    const isLiked = (p.likes||[]).includes(currentUser.uid);
+    let commentsHtml = "";
+    (p.comments||[]).forEach(c=>{
+      commentsHtml += `<div class="commentItem"><b>${c.name}:</b> ${c.text}</div>`;
+    });
+    let mediaHtml = "";
+    if(p.mediaUrl){
+      if(p.mediaType === 'video') mediaHtml = `<video class="postVideo" controls src="${p.mediaUrl}"></video>`;
+      else mediaHtml = `<img class="postImg" src="${p.mediaUrl}">`;
+    }
+    let ytLinkHtml = "";
+    if(p.youtubeLink){
+      ytLinkHtml = `<div class="ytBox">▶️ <a href="${p.youtubeLink}" target="_blank">YouTube Par Puri Video Dekho</a></div>`;
+    }
+    let fbLinkHtml = "";
+    if(p.fbLink){
+      fbLinkHtml = `<div class="fbBox">📘 <a href="${p.fbLink}" target="_blank">Facebook Par Video Dekho</a></div>`;
+    }
+    const safeTitle = (p.title||"").replace(/'/g,"").replace(/"/g,"");
+    const safeMedia = (p.mediaUrl||"").replace(/'/g,"");
+    const safeYt = (p.youtubeLink||"").replace(/'/g,"");
+    const safeFb = (p.fbLink||"").replace(/'/g,"");
+    html += `<div class="card">
+      <div class="head">
+        <b>${p.name||"User"}</b>
+        ${isMine ? `<span><button style="background:#222;color:#ff5555;border:0;padding:6px 10px;border-radius:20px;font-size:12px" onclick="deletePost('${id}')">🗑️ Delete</button></span>` : `<button class="followBtn ${isFollowing?'off':''}" onclick="toggleFollow('${p.uid}','${p.name}')"> ${isFollowing?'Unfollow':'Follow'}</button>`}
+      </div>
+      <div class="postTitle">⭐ ${p.title||""}</div>
+      <p>${p.text||""}</p>
+      ${mediaHtml}
+      ${ytLinkHtml}
+      ${fbLinkHtml}
+      <div class="actions">
+        <button class="${isLiked?'liked':''}" onclick="toggleLike('${id}')">❤️ Like (${(p.likes||[]).length})</button>
+        <button onclick="focusComment('${id}')">💬 Comment (${(p.comments||[]).length})</button>
+        <button class="writeBtn" onclick="openWrite('${id}','${safeTitle}')">✍️ Write Video</button>
+        <button class="ytBtn" onclick="openYouTube('${safeTitle}')">▶️ YouTube Par Puri Dekho</button>
+        <button class="dlBtn" onclick="downloadVideo('${safeMedia}','${safeTitle}','${safeYt}','${safeFb}')">⬇️ Download</button>
+        <button onclick="sharePost('${safeTitle}')">↗️ Share</button>
+      </div>
+      <div class="comments" id="c-${id}">${commentsHtml}<input id="inp-${id}" placeholder="Comment likho..." onkeydown="if(event.key==='Enter') addComment('${id}')"></div>
+    </div>`;
+  });
+  document.getElementById('feed').innerHTML = html || "<p style='text-align:center;color:#888;padding:20px'>Abhi koi post nahi hai, pehli post tum karo</p>";
 }
 
 window.openWrite = (postId, postText)=>{
@@ -320,68 +372,8 @@ window.saveWritten = ()=>{
   document.getElementById('writeMsg').innerText = "✅ Save ho gaya! Tumhare mobile me download ho gaya.";
 };
 
-// YouTube - Ab Title se dhoondta hai, ghalat drama nahi aayega
 window.openYouTube = (title)=>{
   const searchName = (title || "").trim();
-  if(!searchName){
-    alert("Is post me Drama ka naam nahi likha hua!");
-    return;
-  }
+  if(!searchName){ alert("Is post me Drama ka naam nahi likha hua!"); return; }
   const q = encodeURIComponent('"' + searchName + '" full episode');
-  window.open("https://www.youtube.com/results?search_query=" + q, "_blank");
-};
-
-window.deletePost = async (postId)=>{
-  if(!confirm("Kya tum ye post delete karna chahte ho?")) return;
-  await deleteDoc(doc(db,"posts",postId));
-};
-
-window.toggleLike = async (postId)=>{
-  const ref = doc(db,"posts",postId);
-  const snap = await getDoc(ref);
-  const likes = snap.data().likes || [];
-  if(likes.includes(currentUser.uid)){
-    await updateDoc(ref,{likes: arrayRemove(currentUser.uid)});
-  } else {
-    await updateDoc(ref,{likes: arrayUnion(currentUser.uid)});
-  }
-};
-
-window.focusComment = (id)=>{ document.getElementById('inp-'+id).focus(); };
-
-window.addComment = async (postId)=>{
-  const inp = document.getElementById('inp-'+postId);
-  const text = inp.value.trim();
-  if(!text) return;
-  const ref = doc(db,"posts",postId);
-  await updateDoc(ref,{comments: arrayUnion({name: currentUser.displayName||"User", text})});
-  inp.value = "";
-};
-
-window.toggleFollow = async (targetUid, targetName)=>{
-  if(targetUid === currentUser.uid) return;
-  const myRef = doc(db,"users",currentUser.uid);
-  const targetRef = doc(db,"users",targetUid);
-  if(myFollowing.includes(targetUid)){
-    await updateDoc(myRef,{following: arrayRemove(targetUid)});
-    await updateDoc(targetRef,{followers: arrayRemove(currentUser.uid)});
-  } else {
-    await updateDoc(myRef,{following: arrayUnion(targetUid)});
-    const tSnap = await getDoc(targetRef);
-    if(!tSnap.exists()){ await setDoc(targetRef,{name:targetName, following:[], followers:[currentUser.uid]}); }
-    else { await updateDoc(targetRef,{followers: arrayUnion(currentUser.uid)}); }
-  }
-};
-
-window.sharePost = async (text)=>{
-  const shareText = "Vynk par dekho: " + text + " - Download Vynk App";
-  if(navigator.share){
-    try{ await navigator.share({title:"Vynk", text: shareText, url: location.href}); }catch(e){}
-  } else {
-    navigator.clipboard.writeText(shareText);
-    alert("Link copy ho gaya! Ab WhatsApp / Snapchat par paste kar do");
-  }
-};
-</script>
-</body>
-    </html>
+  window.open("https://www.yout
