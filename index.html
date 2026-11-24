@@ -73,24 +73,22 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-// ===== FIREBASE CONFIG - YAHAN APNI CHABI DALO =====
-// Firebase Console -> Project Settings -> Your apps -> Config copy kar ke yahan paste karo
-// Agar abhi nahi dali, to app localStorage par chalegi, Search phir bhi chalega
+// ===== TUMHARI VYNKAPP FIREBASE CONFIG =====
 const firebaseConfig = {
-  // PASTE_YOUR_FIREBASE_CONFIG_HERE
-  // Example: apiKey: "AIza....", authDomain: "...", databaseURL: "...", projectId: "..."
+  apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
+  authDomain: "vynkapp-10da0.firebaseapp.com",
+  projectId: "vynkapp-10da0",
+  storageBucket: "vynkapp-10da0.firebasestorage.app",
+  messagingSenderId: "85561384540",
+  appId: "1:85561384540:web:cf91923827a801b31d9099",
+  measurementId: "G-W4CLNK8PTS",
+  databaseURL: "https://vynkapp-10da0-default-rtdb.firebaseio.com"
 };
-let useFirebase = false;
-let dbRef = null;
-try{
-  if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
-    firebase.initializeApp(firebaseConfig);
-    dbRef = firebase.database().ref('vynk_posts');
-    useFirebase = true;
-  }
-}catch(e){ useFirebase = false; }
+firebase.initializeApp(firebaseConfig);
+let dbRef = firebase.database().ref('vynk_posts');
+let useFirebase = true;
 
-let posts = JSON.parse(localStorage.getItem('vynk_posts') || '[]');
+let posts = [];
 let currentUser = localStorage.getItem('vynk_user') || '';
 let previewData = '';
 let previewIsVideo = false;
@@ -120,23 +118,22 @@ function showMain(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('mainApp').style.display='block';
   document.getElementById('welcomeText').innerText='Hi, '+currentUser;
-  if(useFirebase){
-    dbRef.on('value', function(snapshot){
-      let val = snapshot.val();
-      posts = val ? Object.values(val).reverse() : [];
-      // Firebase se aane wale posts ke liye key bhi save rakho
-      posts.forEach(function(p,i){ p._key = val ? Object.keys(val).reverse()[i] : null; });
-      renderPosts();
-    });
-  } else {
+  dbRef.on('value', function(snapshot){
+    let val = snapshot.val();
+    posts = [];
+    if(val){
+      let keys = Object.keys(val).reverse();
+      keys.forEach(function(k){
+        let p = val[k];
+        p._key = k;
+        if(!p.comments) p.comments = [];
+        posts.push(p);
+      });
+    }
     renderPosts();
-  }
+  });
 }
 function doLogout(){ localStorage.removeItem('vynk_user'); location.reload(); }
-function savePosts(){
-  if(useFirebase) return; // Firebase me alag se save hota hai
-  try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); } catch(e){ alert('Storage full!'); }
-}
 function showPreview(){
   let file=document.getElementById('mediaInput').files[0];
   if(!file) return;
@@ -156,7 +153,6 @@ function renderPosts(){
   let feed=document.getElementById('feed'); feed.innerHTML='';
   let q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '');
   posts.forEach(function(post,index){
-    // SEARCH FILTER - Naam, Drama, Text me se kahi bhi mile to dikhao
     if(q){
       let hay = ((post.name||'')+' '+(post.text||'')).toLowerCase();
       if(!hay.includes(q)) return;
@@ -176,23 +172,18 @@ function addPost(){
   let file=document.getElementById('mediaInput').files[0];
   if(!text && !file && !nameInput){ alert('Pehle kuch likho!'); return; }
   let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,likes:0,liked:false,follow:false,comments:[],time:Date.now()};
-  if(useFirebase){
-    dbRef.push(newPost);
-  } else {
-    posts.unshift(newPost); savePosts(); renderPosts();
-  }
+  dbRef.push(newPost);
   document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; previewData=''; previewIsVideo=false;
 }
-function toggleFollow(index){ posts[index].follow=!posts[index].follow; if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
-function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
+function toggleFollow(index){ posts[index].follow=!posts[index].follow; if(posts[index]._key) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
+function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} if(posts[index]._key) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
+function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); if(posts[index]._key) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
 function deletePost(index){
   if(confirm('Ye post delete kar dun?')){
-    if(useFirebase && posts[index]._key){ dbRef.child(posts[index]._key).remove(); }
-    else { posts.splice(index,1); savePosts(); renderPosts(); }
+    if(posts[index]._key){ dbRef.child(posts[index]._key).remove(); }
   }
 }
 </script>
 </body>
-  </html>
+</html>
