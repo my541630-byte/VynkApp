@@ -6,10 +6,11 @@
 <title>VynkApp</title>
 <style>
 body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
-.header{background:#111;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;gap:8px;flex-wrap:wrap}
+.header{background:#111;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
 .header b{font-size:22px;color:#ffcc00}
 .header span{font-size:13px;color:#ccc}
-.search-input{flex:1;min-width:120px;background:#222;color:#fff;border:0;padding:9px 12px;border-radius:20px;font-size:14px;outline:none}
+.search-bar{background:#111;padding:0 12px 12px}
+.search-input{width:100%;background:#222;color:#fff;border:0;padding:10px 12px;border-radius:20px;font-size:14px;outline:none;box-sizing:border-box}
 .login-box{background:#111;margin:20px;padding:20px;border-radius:15px;text-align:center}
 .login-box h1{color:#ffcc00;font-size:30px;margin:0}
 .login-box p{color:#aaa;font-size:14px}
@@ -51,12 +52,13 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
     <input id="loginEmail" type="email" placeholder="Gmail likho - jaise ali@gmail.com">
     <input id="loginPass" type="password" placeholder="Password likho">
     <button class="login-btn" onclick="doLogin()">Login / Account Banao</button>
-    <p style="font-size:12px;margin-top:12px">Gmail aur Password sirf tum ko pata hoga, kisi aur ko nahi dikhega. Post par sirf Naam dikhega.</p>
+    <p style="font-size:12px;margin-top:12px">Post par sirf Naam dikhega, Gmail kisi ko nahi dikhegi.</p>
   </div>
 </div>
 
 <div id="mainApp" style="display:none">
-  <div class="header"><b>Vynk</b><input id="searchInput" class="search-input" placeholder="🔍 Dost ka Naam / Drama dhoondo..." oninput="renderPosts()"><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
+  <div class="header"><b>Vynk</b><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
+  <div class="search-bar"><input id="searchInput" class="search-input" placeholder="🔍 Dost ka Naam / Drama dhoondo..." oninput="renderPosts()"></div>
   <div class="post-box">
     <input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho">
     <textarea id="postText" placeholder="Is bare me kuch likho..."></textarea>
@@ -66,6 +68,7 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
       <button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button>
       <button class="post-btn" onclick="addPost()">Post Karo</button>
     </div>
+    <p id="statusText" style="font-size:12px;color:#ffcc00;margin:8px 0 0;text-align:center"></p>
   </div>
   <div id="feed"></div>
 </div>
@@ -73,7 +76,6 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-// ===== TUMHARI VYNKAPP FIREBASE CONFIG =====
 const firebaseConfig = {
   apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
   authDomain: "vynkapp-10da0.firebaseapp.com",
@@ -84,16 +86,18 @@ const firebaseConfig = {
   measurementId: "G-W4CLNK8PTS",
   databaseURL: "https://vynkapp-10da0-default-rtdb.firebaseio.com"
 };
-firebase.initializeApp(firebaseConfig);
-let dbRef = firebase.database().ref('vynk_posts');
-let useFirebase = true;
+try{ firebase.initializeApp(firebaseConfig); }catch(e){}
+let dbRef = null;
+try{ dbRef = firebase.database().ref('vynk_posts'); }catch(e){ dbRef = null; }
 
-let posts = [];
+let posts = JSON.parse(localStorage.getItem('vynk_posts_local') || '[]');
 let currentUser = localStorage.getItem('vynk_user') || '';
 let previewData = '';
 let previewIsVideo = false;
 
 if(currentUser){ showMain(); } else { document.getElementById('loginPage').style.display='block'; }
+
+function saveLocal(){ localStorage.setItem('vynk_posts_local', JSON.stringify(posts)); }
 
 function doLogin(){
   let name = document.getElementById('loginName').value.trim();
@@ -118,20 +122,26 @@ function showMain(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('mainApp').style.display='block';
   document.getElementById('welcomeText').innerText='Hi, '+currentUser;
-  dbRef.on('value', function(snapshot){
-    let val = snapshot.val();
-    posts = [];
-    if(val){
-      let keys = Object.keys(val).reverse();
-      keys.forEach(function(k){
-        let p = val[k];
-        p._key = k;
-        if(!p.comments) p.comments = [];
-        posts.push(p);
-      });
-    }
-    renderPosts();
-  });
+  renderPosts();
+  if(dbRef){
+    dbRef.on('value', function(snapshot){
+      let val = snapshot.val();
+      if(val){
+        let keys = Object.keys(val).reverse();
+        let fbPosts = [];
+        keys.forEach(function(k){ let p = val[k]; p._key = k; if(!p.comments) p.comments=[]; fbPosts.push(p); });
+        // Firebase wali posts ko local ke sath mila do
+        posts = fbPosts;
+        saveLocal();
+        renderPosts();
+        document.getElementById('statusText').innerText = 'Online - Firebase se connected ✓';
+      } else {
+        document.getElementById('statusText').innerText = 'Online - Firebase connected, abhi koi post nahi';
+      }
+    }, function(err){
+      document.getElementById('statusText').innerText = 'Firebase band hai - Sirf is mobile me post dikhegi. Firebase me Database banao!';
+    });
+  }
 }
 function doLogout(){ localStorage.removeItem('vynk_user'); location.reload(); }
 function showPreview(){
@@ -172,18 +182,27 @@ function addPost(){
   let file=document.getElementById('mediaInput').files[0];
   if(!text && !file && !nameInput){ alert('Pehle kuch likho!'); return; }
   let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,likes:0,liked:false,follow:false,comments:[],time:Date.now()};
-  dbRef.push(newPost);
+  // 1. Pehle local me dikhao - taake ghaib na ho
+  posts.unshift(newPost);
+  saveLocal();
+  renderPosts();
+  document.getElementById('statusText').innerText = 'Post ho gayi ✓';
+  // 2. Phir Firebase ko bhejo
+  if(dbRef){
+    dbRef.push(newPost).then(function(){ document.getElementById('statusText').innerText = 'Post ho gayi ✓ - Sab ko nazar aayegi'; }).catch(function(err){ document.getElementById('statusText').innerText = 'Post is mobile me ho gayi ✓, Firebase me nahi gayi - Database banao!'; });
+  }
   document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; previewData=''; previewIsVideo=false;
 }
-function toggleFollow(index){ posts[index].follow=!posts[index].follow; if(posts[index]._key) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
-function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} if(posts[index]._key) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
+function toggleFollow(index){ posts[index].follow=!posts[index].follow; saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
+function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); if(posts[index]._key) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
+function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
 function deletePost(index){
   if(confirm('Ye post delete kar dun?')){
-    if(posts[index]._key){ dbRef.child(posts[index]._key).remove(); }
+    if(posts[index]._key && dbRef){ dbRef.child(posts[index]._key).remove(); }
+    posts.splice(index,1); saveLocal(); renderPosts();
   }
 }
 </script>
 </body>
-</html>
+  </html>
