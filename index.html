@@ -6,9 +6,10 @@
 <title>VynkApp</title>
 <style>
 body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
-.header{background:#111;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+.header{background:#111;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;gap:8px;flex-wrap:wrap}
 .header b{font-size:22px;color:#ffcc00}
 .header span{font-size:13px;color:#ccc}
+.search-input{flex:1;min-width:120px;background:#222;color:#fff;border:0;padding:9px 12px;border-radius:20px;font-size:14px;outline:none}
 .login-box{background:#111;margin:20px;padding:20px;border-radius:15px;text-align:center}
 .login-box h1{color:#ffcc00;font-size:30px;margin:0}
 .login-box p{color:#aaa;font-size:14px}
@@ -55,7 +56,7 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 </div>
 
 <div id="mainApp" style="display:none">
-  <div class="header"><b>Vynk</b><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
+  <div class="header"><b>Vynk</b><input id="searchInput" class="search-input" placeholder="🔍 Dost ka Naam / Drama dhoondo..." oninput="renderPosts()"><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
   <div class="post-box">
     <input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho">
     <textarea id="postText" placeholder="Is bare me kuch likho..."></textarea>
@@ -69,7 +70,26 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
   <div id="feed"></div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
+// ===== FIREBASE CONFIG - YAHAN APNI CHABI DALO =====
+// Firebase Console -> Project Settings -> Your apps -> Config copy kar ke yahan paste karo
+// Agar abhi nahi dali, to app localStorage par chalegi, Search phir bhi chalega
+const firebaseConfig = {
+  // PASTE_YOUR_FIREBASE_CONFIG_HERE
+  // Example: apiKey: "AIza....", authDomain: "...", databaseURL: "...", projectId: "..."
+};
+let useFirebase = false;
+let dbRef = null;
+try{
+  if(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.databaseURL){
+    firebase.initializeApp(firebaseConfig);
+    dbRef = firebase.database().ref('vynk_posts');
+    useFirebase = true;
+  }
+}catch(e){ useFirebase = false; }
+
 let posts = JSON.parse(localStorage.getItem('vynk_posts') || '[]');
 let currentUser = localStorage.getItem('vynk_user') || '';
 let previewData = '';
@@ -100,10 +120,23 @@ function showMain(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('mainApp').style.display='block';
   document.getElementById('welcomeText').innerText='Hi, '+currentUser;
-  renderPosts();
+  if(useFirebase){
+    dbRef.on('value', function(snapshot){
+      let val = snapshot.val();
+      posts = val ? Object.values(val).reverse() : [];
+      // Firebase se aane wale posts ke liye key bhi save rakho
+      posts.forEach(function(p,i){ p._key = val ? Object.keys(val).reverse()[i] : null; });
+      renderPosts();
+    });
+  } else {
+    renderPosts();
+  }
 }
 function doLogout(){ localStorage.removeItem('vynk_user'); location.reload(); }
-function savePosts(){ try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); } catch(e){ alert('Storage full!'); } }
+function savePosts(){
+  if(useFirebase) return; // Firebase me alag se save hota hai
+  try{ localStorage.setItem('vynk_posts', JSON.stringify(posts)); } catch(e){ alert('Storage full!'); }
+}
 function showPreview(){
   let file=document.getElementById('mediaInput').files[0];
   if(!file) return;
@@ -121,13 +154,20 @@ function readFile(file){
 }
 function renderPosts(){
   let feed=document.getElementById('feed'); feed.innerHTML='';
+  let q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '');
   posts.forEach(function(post,index){
+    // SEARCH FILTER - Naam, Drama, Text me se kahi bhi mile to dikhao
+    if(q){
+      let hay = ((post.name||'')+' '+(post.text||'')).toLowerCase();
+      if(!hay.includes(q)) return;
+    }
     let div=document.createElement('div'); div.className='post';
     let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
-    let commentsHTML=post.comments.map(c=>'<div>'+c+'</div>').join('');
+    let commentsHTML=(post.comments||[]).map(c=>'<div>'+c+'</div>').join('');
     div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
     feed.appendChild(div);
   });
+  if(feed.innerHTML==='' && q){ feed.innerHTML='<p style="text-align:center;color:#aaa">Koi result nahi mila: '+q+'</p>'; }
 }
 function addPost(){
   let nameInput=document.getElementById('dramaName').value;
@@ -135,19 +175,22 @@ function addPost(){
   let text=document.getElementById('postText').value;
   let file=document.getElementById('mediaInput').files[0];
   if(!text && !file && !nameInput){ alert('Pehle kuch likho!'); return; }
-  let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,likes:0,liked:false,follow:false,comments:[]};
-  posts.unshift(newPost); savePosts(); renderPosts();
+  let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,likes:0,liked:false,follow:false,comments:[],time:Date.now()};
+  if(useFirebase){
+    dbRef.push(newPost);
+  } else {
+    posts.unshift(newPost); savePosts(); renderPosts();
+  }
   document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; previewData=''; previewIsVideo=false;
 }
-function toggleFollow(index){ posts[index].follow=!posts[index].follow; savePosts(); renderPosts(); }
-function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} savePosts(); renderPosts(); }
+function toggleFollow(index){ posts[index].follow=!posts[index].follow; if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
+function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); savePosts(); renderPosts(); }
+function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); if(!useFirebase) savePosts(); else if(posts[index]._key) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
 function deletePost(index){
   if(confirm('Ye post delete kar dun?')){
-    posts.splice(index,1);
-    savePosts();
-    renderPosts();
+    if(useFirebase && posts[index]._key){ dbRef.child(posts[index]._key).remove(); }
+    else { posts.splice(index,1); savePosts(); renderPosts(); }
   }
 }
 </script>
