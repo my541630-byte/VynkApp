@@ -155,7 +155,7 @@ function addPost(){ let nameInput=document.getElementById('dramaName').value; le
 function toggleFollow(index){ posts[index].follow=!posts[index].follow; saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
 function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-functionfunction addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
+function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
 function deletePost(index){ if(confirm('Ye post delete kar dun?')){ if(posts[index]._key && dbRef){ dbRef.child(posts[index]._key).remove(); } posts.splice(index,1); saveLocal(); renderPosts(); } }
 </script>
 </body>
