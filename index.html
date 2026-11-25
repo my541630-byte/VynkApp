@@ -43,210 +43,120 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 .comment-list{margin-top:8px;font-size:14px}
 .comment-list div{background:#222;padding:7px 10px;border-radius:8px;margin-bottom:5px}
 .logout{color:#ff3b30;font-size:13px;background:none;border:0}
+.baithak-box{background:linear-gradient(135deg,#3a0000,#111);margin:10px;padding:14px;border-radius:15px;border:1px solid #ff3b30}
+.baithak-top{display:flex;justify-content:space-between;align-items:center}
+.live-dot{width:10px;height:10px;background:#ff3b30;border-radius:50%;display:inline-block;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0.3}}
+.baithak-btn{width:100%;background:#ff3b30;color:#fff;border:0;padding:12px;border-radius:10px;font-size:16px;font-weight:bold;margin-top:10px}
+.baithak-btn.joined{background:#222;color:#ffcc00}
+.baithak-chat{max-height:200px;overflow-y:auto;margin-top:10px}
+.baithak-chat div{background:#222;padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:14px}
+.baithak-chat audio{width:100%;margin-top:5px}
+.baithak-row{display:flex;gap:8px;margin-top:10px}
+.baithak-row input{flex:1;background:#222;color:#fff;border:0;padding:10px;border-radius:8px}
+.baithak-mic{background:#ffcc00;color:#000;border:0;width:45px;border-radius:8px;font-size:20px}
+.mute-btn{background:#222;color:#fff;border:0;padding:8px 12px;border-radius:20px;font-weight:bold}
+.mute-btn.muted{background:#ffcc00;color:#000}
+.live-baat-btn{width:100%;background:#ff3b30;color:#fff;border:0;padding:10px;border-radius:8px;font-weight:bold;margin-top:10px}
 </style>
 </head>
 <body>
-
 <div id="loginPage" style="display:none">
-  <div class="login-box">
-    <h1>Vynk</h1>
-    <p>Drama Lovers ki Apni Duniya</p>
-    <input id="loginName" placeholder="Apna Naam likho">
-    <input id="loginEmail" type="email" placeholder="Gmail likho - jaise ali@gmail.com">
-    <input id="loginPass" type="password" placeholder="Password likho">
-    <button class="login-btn" onclick="doLogin()">Login / Account Banao</button>
-    <p style="font-size:12px;margin-top:12px">Post par sirf Naam dikhega, Gmail kisi ko nahi dikhegi.</p>
-  </div>
+<div class="login-box"><h1>Vynk</h1><p>Drama Lovers ki Apni Duniya</p><input id="loginName" placeholder="Apna Naam likho"><input id="loginEmail" type="email" placeholder="Gmail likho - jaise ali@gmail.com"><input id="loginPass" type="password" placeholder="Password likho"><button class="login-btn" onclick="doLogin()">Login / Account Banao</button><p style="font-size:12px;margin-top:12px">Post par sirf Naam dikhega, Gmail kisi ko nahi dikhegi.</p></div>
 </div>
-
 <div id="mainApp" style="display:none">
-  <div class="header"><b>Vynk</b><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
-  <div class="search-bar"><input id="searchInput" class="search-input" placeholder="🔍 Dost ka Naam / Drama dhoondo..." oninput="renderPosts()"></div>
-  <div class="post-box">
-    <input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho">
-    <textarea id="postText" placeholder="Is bare me kuch likho..."></textarea>
-    <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="showPreview()">
-    <div id="preview"></div>
-    <div class="row">
-      <button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button>
-      <button class="mic-btn" id="micBtn" onclick="toggleVoice()">🎤</button>
-      <button class="post-btn" onclick="addPost()">Post Karo</button>
-    </div>
-    <p id="voiceStatus" style="font-size:12px;color:#ff6b6b;margin:8px 0 0;text-align:center"></p>
-    <p id="statusText" style="font-size:12px;color:#ffcc00;margin:8px 0 0;text-align:center"></p>
-  </div>
-  <div id="feed"></div>
+<div class="header"><b>Vynk</b><span id="welcomeText"></span> <button class="logout" onclick="doLogout()">Logout</button></div>
+<div class="search-bar"><input id="searchInput" class="search-input" placeholder="🔍 Dost ka Naam / Drama dhoondo..." oninput="renderPosts()"></div>
+<div class="baithak-box">
+<div class="baithak-top"><b>🎙️ <span id="baithakTitle">Vynk Live Baithak</span></b><span><span class="live-dot"></span> <span id="baithakCount">0 log dekh rahe hain</span></span></div>
+<p style="font-size:13px;color:#ccc;margin:8px 0 0">Drama chalte hue neeche baat karo. Shor lage to Awaz Band kar do, drama dekho!</p>
+<div style="display:flex;gap:8px;margin-top:10px"><button id="baithakBtn" class="baithak-btn" style="flex:1" onclick="toggleBaithak()">🔴 Baithak Join Karo</button><button id="muteBtn" class="mute-btn" onclick="toggleMute()">🔊 Awaz ON</button></div>
+<div id="baithakArea" style="display:none"><div id="baithakChat" class="baithak-chat"></div><div class="baithak-row"><input id="baithakInput" placeholder="Is scene par kuch bolo..." onkeydown="if(event.key==='Enter'){sendBaithakMsg()}"><button class="baithak-mic" id="baithakMicBtn" onclick="toggleBaithakVoice()">🎤</button><button style="background:#25D366;color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:bold" onclick="sendBaithakMsg()">Bhejo</button></div><p style="font-size:12px;color:#ffcc00;text-align:center;margin:8px 0 0">Mic dabao, bolo - sab ko sunai dega.</p></div>
 </div>
-
+<div class="post-box"><input id="dramaName" placeholder="Drama ka Naam - likhna chaho to likho"><textarea id="postText" placeholder="Is bare me kuch likho..."></textarea><input type="file" id="mediaInput" accept="image/*,video/*" style="display:none" onchange="showPreview()"><div id="preview"></div><div class="row"><button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button><button class="mic-btn" id="micBtn" onclick="toggleVoice()">🎤</button><button class="post-btn" onclick="addPost()">Post Karo</button></div><p id="voiceStatus" style="font-size:12px;color:#ff6b6b;margin:8px 0 0;text-align:center"></p><p id="statusText" style="font-size:12px;color:#ffcc00;margin:8px 0 0;text-align:center"></p></div>
+<div id="feed"></div>
+</div>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",
-  authDomain: "vynkapp-10da0.firebaseapp.com",
-  projectId: "vynkapp-10da0",
-  storageBucket: "vynkapp-10da0.firebasestorage.app",
-  messagingSenderId: "85561384540",
-  appId: "1:85561384540:web:cf91923827a801b31d9099",
-  measurementId: "G-W4CLNK8PTS",
-  databaseURL: "https://vynkapp-10da0-default-rtdb.firebaseio.com"
-};
+const firebaseConfig = {apiKey: "AIzaSyCioypepHB7ksvvy-241mwzW4iDJSjFUS4",authDomain: "vynkapp-10da0.firebaseapp.com",projectId: "vynkapp-10da0",storageBucket: "vynkapp-10da0.firebasestorage.app",messagingSenderId: "85561384540",appId: "1:85561384540:web:cf91923827a801b31d9099",measurementId: "G-W4CLNK8PTS",databaseURL: "https://vynkapp-10da0-default-rtdb.firebaseio.com"};
 try{ firebase.initializeApp(firebaseConfig); }catch(e){}
-let dbRef = null;
-try{ dbRef = firebase.database().ref('vynk_posts'); }catch(e){ dbRef = null; }
-
+let dbRef = null; try{ dbRef = firebase.database().ref('vynk_posts'); }catch(e){ dbRef = null; }
+let baithakRef = null; let baithakUsersRef = null;
+try{ baithakRef = firebase.database().ref('vynk_baithak'); baithakUsersRef = firebase.database().ref('vynk_baithak_users'); }catch(e){}
 let posts = JSON.parse(localStorage.getItem('vynk_posts_local') || '[]');
 let currentUser = localStorage.getItem('vynk_user') || '';
-let previewData = '';
-let previewIsVideo = false;
-
-// MIC WALA ADD KIYA HUA HISSA - BAAKI SAB WESA HI HAI
-let mediaRecorder = null;
-let audioChunks = [];
-let audioData = '';
-let isRecording = false;
-
+let previewData = ''; let previewIsVideo = false;
+let mediaRecorder = null; let audioChunks = []; let audioData = ''; let isRecording = false;
 async function toggleVoice(){
-  let btn = document.getElementById('micBtn');
-  let st = document.getElementById('voiceStatus');
-  if(!isRecording){
-    try{
-      let stream = await navigator.mediaDevices.getUserMedia({audio:true});
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = function(e){ if(e.data.size>0) audioChunks.push(e.data); };
-      mediaRecorder.onstop = function(){
-        let blob = new Blob(audioChunks, {type:'audio/webm'});
-        let reader = new FileReader();
-        reader.onload = function(e){
-          audioData = e.target.result;
-          document.getElementById('preview').innerHTML = '<audio src="'+audioData+'" controls></audio>';
-          st.innerText = 'Awaz record ho gayi ✓ - Ab Post Karo dabao';
-        };
-        reader.readAsDataURL(blob);
-        stream.getTracks().forEach(t=>t.stop());
-      };
-      mediaRecorder.start();
-      isRecording = true;
-      btn.classList.add('recording');
-      btn.innerText = '⏹️';
-      st.innerText = '🔴 Recording ho rahi hai... dobara dabao band karne ke liye';
-    }catch(err){ alert('Mic ki ijazat do! Allow dabao'); }
-  } else {
-    mediaRecorder.stop();
-    isRecording = false;
-    btn.classList.remove('recording');
-    btn.innerText = '🎤';
-    st.innerText = '';
-  }
+let btn = document.getElementById('micBtn'); let st = document.getElementById('voiceStatus');
+if(!isRecording){
+try{
+let stream = await navigator.mediaDevices.getUserMedia({audio:true});
+mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+mediaRecorder.ondataavailable = function(e){ if(e.data.size>0) audioChunks.push(e.data); };
+mediaRecorder.onstop = function(){ let blob = new Blob(audioChunks, {type:'audio/webm'}); let reader = new FileReader(); reader.onload = function(e){ audioData = e.target.result; document.getElementById('preview').innerHTML = '<audio src="'+audioData+'" controls></audio>'; st.innerText = 'Awaz record ho gayi ✓ - Ab Post Karo dabao'; }; reader.readAsDataURL(blob); stream.getTracks().forEach(t=>t.stop()); };
+mediaRecorder.start(); isRecording = true; btn.classList.add('recording'); btn.innerText = '⏹️'; st.innerText = '🔴 Recording ho rahi hai...';
+}catch(err){ alert('Mic ki ijazat do! Allow dabao'); }
+} else { mediaRecorder.stop(); isRecording = false; btn.classList.remove('recording'); btn.innerText = '🎤'; st.innerText = ''; }
 }
-
+let baithakJoined = false; let baithakMyKey = null; let baithakRecorder = null; let baithakChunks = []; let baithakRecording = false;
+let currentDrama = 'General Baithak'; let isMuted = false;
+function toggleMute(){
+isMuted = !isMuted;
+let b = document.getElementById('muteBtn');
+if(isMuted){ b.innerText = '🔇 Awaz OFF - Sirf Drama'; b.classList.add('muted'); document.querySelectorAll('#baithakChat audio').forEach(a=>{a.pause(); a.style.display='none';}); }
+else { b.innerText = '🔊 Awaz ON'; b.classList.remove('muted'); document.querySelectorAll('#baithakChat audio').forEach(a=>{a.style.display='block';}); }
+}
+function joinDramaBaithak(dramaName){
+currentDrama = dramaName || 'General Baithak';
+document.getElementById('baithakTitle').innerText = 'Live: ' + currentDrama;
+document.querySelector('.baithak-box').scrollIntoView({behavior:'smooth'});
+if(!baithakJoined) toggleBaithak();
+else { if(baithakRef) baithakRef.push({name:'System', text: currentUser + ' is drama ki baithak me aa gaya: ' + currentDrama, time: Date.now()}); }
+}
+function toggleBaithak(){
+let btn = document.getElementById('baithakBtn'); let area = document.getElementById('baithakArea');
+if(!baithakJoined){
+baithakJoined = true; btn.innerText = '✅ Baithak me ho - Nikalne ke liye dabao'; btn.classList.add('joined'); area.style.display = 'block';
+if(baithakUsersRef){ let r = baithakUsersRef.push({name: currentUser, drama: currentDrama, time: Date.now()}); baithakMyKey = r.key; r.onDisconnect().remove(); }
+if(baithakRef) baithakRef.push({name: 'System', text: currentUser + ' Baithak me aa gaya 👋 - ' + currentDrama, time: Date.now()});
+listenBaithak();
+} else {
+baithakJoined = false; btn.innerText = '🔴 Baithak Join Karo'; btn.classList.remove('joined'); area.style.display = 'none';
+if(baithakUsersRef && baithakMyKey) baithakUsersRef.child(baithakMyKey).remove();
+}
+}
+function listenBaithak(){
+if(baithakRef){
+baithakRef.limitToLast(50).on('value', function(snap){
+let val = snap.val(); let box = document.getElementById('baithakChat'); box.innerHTML = '';
+if(val){ Object.values(val).forEach(function(m){ let d = document.createElement('div'); if(m.audio){ d.innerHTML = '<b>'+m.name+':</b> 🎤 <audio src="'+m.audio+'" controls '+(isMuted?'style="display:none"':'')+'></audio>'; if(isMuted) d.innerHTML += '<span style="color:#aaa;font-size:12px"> (Awaz Band hai)</span>'; } else d.innerHTML = '<b>'+m.name+':</b> '+m.text; box.appendChild(d); }); box.scrollTop = box.scrollHeight; }
+});
+}
+if(baithakUsersRef){ baithakUsersRef.on('value', function(snap){ let val = snap.val(); let c = val ? Object.keys(val).length : 0; document.getElementById('baithakCount').innerText = c + ' log dekh rahe hain'; }); }
+}
+function sendBaithakMsg(){ let inp = document.getElementById('baithakInput'); let t = inp.value.trim(); if(!t) return; if(baithakRef) baithakRef.push({name: currentUser, text: t, drama: currentDrama, time: Date.now()}); else { let box = document.getElementById('baithakChat'); let d = document.createElement('div'); d.innerHTML = '<b>'+currentUser+':</b> '+t; box.appendChild(d); } inp.value = ''; }
+async function toggleBaithakVoice(){
+let btn = document.getElementById('baithakMicBtn');
+if(!baithakRecording){
+try{ let stream = await navigator.mediaDevices.getUserMedia({audio:true}); baithakRecorder = new MediaRecorder(stream); baithakChunks = []; baithakRecorder.ondataavailable = function(e){ if(e.data.size>0) baithakChunks.push(e.data); }; baithakRecorder.onstop = function(){ let blob = new Blob(baithakChunks, {type:'audio/webm'}); let reader = new FileReader(); reader.onload = function(e){ if(baithakRef) baithakRef.push({name: currentUser, audio: e.target.result, drama: currentDrama, time: Date.now()}); }; reader.readAsDataURL(blob); stream.getTracks().forEach(t=>t.stop()); }; baithakRecorder.start(); baithakRecording = true; btn.innerText = '⏹️'; btn.style.background = '#ff3b30'; btn.style.color = '#fff'; }catch(e){ alert('Mic Allow karo'); }
+} else { baithakRecorder.stop(); baithakRecording = false; btn.innerText = '🎤'; btn.style.background = '#ffcc00'; btn.style.color = '#000'; }
+}
 if(currentUser){ showMain(); } else { document.getElementById('loginPage').style.display='block'; }
-
 function saveLocal(){ localStorage.setItem('vynk_posts_local', JSON.stringify(posts)); }
-
-function doLogin(){
-  let name = document.getElementById('loginName').value.trim();
-  let email = document.getElementById('loginEmail').value.trim();
-  let pass = document.getElementById('loginPass').value.trim();
-  if(!name || !email || !pass){ alert('Naam, Gmail aur Password teeno likho!'); return; }
-  if(!email.includes('@')){ alert('Sahi Gmail likho!'); return; }
-  let users = JSON.parse(localStorage.getItem('vynk_users') || '{}');
-  if(users[email]){
-    if(users[email].pass !== pass){ alert('Password ghalat hai!'); return; }
-    currentUser = users[email].name;
-  } else {
-    users[email] = {name: name, pass: pass};
-    localStorage.setItem('vynk_users', JSON.stringify(users));
-    currentUser = name;
-    alert('Welcome ' + name + '! Tumhara Account ban gaya!');
-  }
-  localStorage.setItem('vynk_user', currentUser);
-  showMain();
-}
-function showMain(){
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('mainApp').style.display='block';
-  document.getElementById('welcomeText').innerText='Hi, '+currentUser;
-  renderPosts();
-  if(dbRef){
-    dbRef.on('value', function(snapshot){
-      let val = snapshot.val();
-      if(val){
-        let keys = Object.keys(val).reverse();
-        let fbPosts = [];
-        keys.forEach(function(k){ let p = val[k]; p._key = k; if(!p.comments) p.comments=[]; fbPosts.push(p); });
-        posts = fbPosts;
-        saveLocal();
-        renderPosts();
-        document.getElementById('statusText').innerText = 'Online - Firebase se connected ✓';
-      } else {
-        document.getElementById('statusText').innerText = 'Online - Firebase connected, abhi koi post nahi';
-      }
-    }, function(err){
-      document.getElementById('statusText').innerText = 'Firebase band hai - Sirf is mobile me post dikhegi. Firebase me Database banao!';
-    });
-  }
-}
+function doLogin(){ let name = document.getElementById('loginName').value.trim(); let email = document.getElementById('loginEmail').value.trim(); let pass = document.getElementById('loginPass').value.trim(); if(!name || !email || !pass){ alert('Naam, Gmail aur Password teeno likho!'); return; } if(!email.includes('@')){ alert('Sahi Gmail likho!'); return; } let users = JSON.parse(localStorage.getItem('vynk_users') || '{}'); if(users[email]){ if(users[email].pass !== pass){ alert('Password ghalat hai!'); return; } currentUser = users[email].name; } else { users[email] = {name: name, pass: pass}; localStorage.setItem('vynk_users', JSON.stringify(users)); currentUser = name; alert('Welcome ' + name + '! Tumhara Account ban gaya!'); } localStorage.setItem('vynk_user', currentUser); showMain(); }
+function showMain(){ document.getElementById('loginPage').style.display='none'; document.getElementById('mainApp').style.display='block'; document.getElementById('welcomeText').innerText='Hi, '+currentUser; renderPosts(); listenBaithak(); if(dbRef){ dbRef.on('value', function(snapshot){ let val = snapshot.val(); if(val){ let keys = Object.keys(val).reverse(); let fbPosts = []; keys.forEach(function(k){ let p = val[k]; p._key = k; if(!p.comments) p.comments=[]; fbPosts.push(p); }); posts = fbPosts; saveLocal(); renderPosts(); document.getElementById('statusText').innerText = 'Online - Firebase se connected ✓'; } else { document.getElementById('statusText').innerText = 'Online - Firebase connected, abhi koi post nahi'; } }, function(err){ document.getElementById('statusText').innerText = 'Firebase band hai - Sirf is mobile me post dikhegi.'; }); } }
 function doLogout(){ localStorage.removeItem('vynk_user'); location.reload(); }
-function showPreview(){
-  let file=document.getElementById('mediaInput').files[0];
-  if(!file) return;
-  if(file.size > 10*1024*1024){ alert('10 MB se choti file lagao!'); document.getElementById('mediaInput').value=''; return; }
-  if(file.type.startsWith('video')){
-    let video=document.createElement('video'); video.preload='metadata';
-    video.onloadedmetadata=function(){ if(video.duration>30){ alert('Video 30 second se lambi hai!'); document.getElementById('mediaInput').value=''; return; } readFile(file); };
-    video.src=URL.createObjectURL(file);
-  } else { readFile(file); }
-}
-function readFile(file){
-  let reader=new FileReader();
-  reader.onload=function(e){ previewData=e.target.result; previewIsVideo=file.type.startsWith('video'); document.getElementById('preview').innerHTML=previewIsVideo?'<video src="'+previewData+'" controls></video>':'<img src="'+previewData+'">'; };
-  reader.readAsDataURL(file);
-}
-function renderPosts(){
-  let feed=document.getElementById('feed'); feed.innerHTML='';
-  let q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '');
-  posts.forEach(function(post,index){
-    if(q){
-      let hay = ((post.name||'')+' '+(post.text||'')).toLowerCase();
-      if(!hay.includes(q)) return;
-    }
-    let div=document.createElement('div'); div.className='post';
-    let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
-    let audioHTML=''; if(post.audio){ audioHTML='<audio src="'+post.audio+'" controls></audio>'; }
-    let commentsHTML=(post.comments||[]).map(c=>'<div>'+c+'</div>').join('');
-    div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+audioHTML+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
-    feed.appendChild(div);
-  });
-  if(feed.innerHTML==='' && q){ feed.innerHTML='<p style="text-align:center;color:#aaa">Koi result nahi mila: '+q+'</p>'; }
-}
-function addPost(){
-  let nameInput=document.getElementById('dramaName').value;
-  let name=nameInput ? nameInput+' - '+currentUser : currentUser;
-  let text=document.getElementById('postText').value;
-  let file=document.getElementById('mediaInput').files[0];
-  if(!text && !file && !nameInput && !audioData){ alert('Pehle kuch likho!'); return; }
-  let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,audio:audioData||'',likes:0,liked:false,follow:false,comments:[],time:Date.now()};
-  posts.unshift(newPost);
-  saveLocal();
-  renderPosts();
-  document.getElementById('statusText').innerText = 'Post ho gayi ✓';
-  if(dbRef){
-    dbRef.push(newPost).then(function(){ document.getElementById('statusText').innerText = 'Post ho gayi ✓ - Sab ko nazar aayegi'; }).catch(function(err){ document.getElementById('statusText').innerText = 'Post is mobile me ho gayi ✓, Firebase me nahi gayi - Database banao!'; });
-  }
-  document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; document.getElementById('voiceStatus').innerText=''; previewData=''; previewIsVideo=false; audioData='';
-}
+function showPreview(){ let file=document.getElementById('mediaInput').files[0]; if(!file) return; if(file.size > 10*1024*1024){ alert('10 MB se choti file lagao!'); document.getElementById('mediaInput').value=''; return; } if(file.type.startsWith('video')){ let video=document.createElement('video'); video.preload='metadata'; video.onloadedmetadata=function(){ if(video.duration>30){ alert('Video 30 second se lambi hai!'); document.getElementById('mediaInput').value=''; return; } readFile(file); }; video.src=URL.createObjectURL(file); } else { readFile(file); } }
+function readFile(file){ let reader=new FileReader(); reader.onload=function(e){ previewData=e.target.result; previewIsVideo=file.type.startsWith('video'); document.getElementById('preview').innerHTML=previewIsVideo?'<video src="'+previewData+'" controls></video>':'<img src="'+previewData+'">'; }; reader.readAsDataURL(file); }
+function renderPosts(){ let feed=document.getElementById('feed'); feed.innerHTML=''; let q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : ''); posts.forEach(function(post,index){ if(q){ let hay = ((post.name||'')+' '+(post.text||'')).toLowerCase(); if(!hay.includes(q)) return; } let div=document.createElement('div'); div.className='post'; let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; } let audioHTML=''; if(post.audio){ audioHTML='<audio src="'+post.audio+'" controls></audio>'; } let commentsHTML=(post.comments||[]).map(c=>'<div>'+c+'</div>').join(''); div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+audioHTML+mediaHTML+'<button class="live-baat-btn" onclick="joinDramaBaithak(\''+(post.name||'General').replace(/\'/g,'')+'\')">🎙️ Live Baat - Is Drama par baat karo</button><div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>'; feed.appendChild(div); }); if(feed.innerHTML==='' && q){ feed.innerHTML='<p style="text-align:center;color:#aaa">Koi result nahi mila: '+q+'</p>'; } }
+function addPost(){ let nameInput=document.getElementById('dramaName').value; let name=nameInput ? nameInput+' - '+currentUser : currentUser; let text=document.getElementById('postText').value; let file=document.getElementById('mediaInput').files[0]; if(!text && !file && !nameInput && !audioData){ alert('Pehle kuch likho!'); return; } let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,audio:audioData||'',likes:0,liked:false,follow:false,comments:[],time:Date.now()}; posts.unshift(newPost); saveLocal(); renderPosts(); document.getElementById('statusText').innerText = 'Post ho gayi ✓'; if(dbRef){ dbRef.push(newPost).then(function(){ document.getElementById('statusText').innerText = 'Post ho gayi ✓ - Sab ko nazar aayegi'; }).catch(function(err){ document.getElementById('statusText').innerText = 'Post is mobile me ho gayi ✓, Firebase me nahi gayi'; }); } document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; document.getElementById('voiceStatus').innerText=''; previewData=''; previewIsVideo=false; audioData=''; }
 function toggleFollow(index){ posts[index].follow=!posts[index].follow; saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
 function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
 function toggleComment(btn){ let box=btn.closest('.post').querySelector('.comment-box'); box.style.display=box.style.display==='block'?'none':'block'; }
-function addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
-function deletePost(index){
-  if(confirm('Ye post delete kar dun?')){
-    if(posts[index]._key && dbRef){ dbRef.child(posts[index]._key).remove(); }
-    posts.splice(index,1); saveLocal(); renderPosts();
-  }
-}
+functionfunction addComment(index,input){ if(!input.value) return; posts[index].comments.push(currentUser+': '+input.value); saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({comments:posts[index].comments}); renderPosts(); }
+function deletePost(index){ if(confirm('Ye post delete kar dun?')){ if(posts[index]._key && dbRef){ dbRef.child(posts[index]._key).remove(); } posts.splice(index,1); saveLocal(); renderPosts(); } }
 </script>
 </body>
-  </html>
+</html>
