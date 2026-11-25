@@ -21,6 +21,8 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 .post-box textarea{height:70px}
 .row{display:flex;gap:8px;align-items:center}
 .plus-btn{background:#222;color:#ffcc00;font-size:24px;width:45px;height:42px;border:0;border-radius:8px}
+.mic-btn{background:#222;color:#fff;font-size:22px;width:45px;height:42px;border:0;border-radius:8px}
+.mic-btn.recording{background:#ff3b30;color:#fff}
 .post-btn{flex:1;background:#25D366;color:#fff;border:0;padding:12px;border-radius:8px;font-size:16px;font-weight:bold}
 #preview img, #preview video{width:100%;border-radius:10px;margin-top:8px}
 #feed{padding:10px}
@@ -31,6 +33,7 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
 .follow-btn.following{background:#222;color:#fff}
 .post p{margin:8px 0;white-space:pre-wrap}
 .post img, .post video{width:100%;border-radius:10px;margin-top:8px}
+.post audio{width:100%;margin-top:8px}
 .actions{display:flex;gap:8px;margin-top:10px;border-top:1px solid #222;padding-top:10px}
 .actions button{flex:1;background:#222;color:#fff;border:0;padding:9px;border-radius:8px;font-size:14px}
 .actions button.liked{background:#ff3b30;color:#fff}
@@ -66,8 +69,10 @@ body{background:#000;color:#fff;font-family:Arial;margin:0;padding:0}
     <div id="preview"></div>
     <div class="row">
       <button class="plus-btn" onclick="document.getElementById('mediaInput').click()">+</button>
+      <button class="mic-btn" id="micBtn" onclick="toggleVoice()">🎤</button>
       <button class="post-btn" onclick="addPost()">Post Karo</button>
     </div>
+    <p id="voiceStatus" style="font-size:12px;color:#ff6b6b;margin:8px 0 0;text-align:center"></p>
     <p id="statusText" style="font-size:12px;color:#ffcc00;margin:8px 0 0;text-align:center"></p>
   </div>
   <div id="feed"></div>
@@ -94,6 +99,47 @@ let posts = JSON.parse(localStorage.getItem('vynk_posts_local') || '[]');
 let currentUser = localStorage.getItem('vynk_user') || '';
 let previewData = '';
 let previewIsVideo = false;
+
+// MIC WALA ADD KIYA HUA HISSA - BAAKI SAB WESA HI HAI
+let mediaRecorder = null;
+let audioChunks = [];
+let audioData = '';
+let isRecording = false;
+
+async function toggleVoice(){
+  let btn = document.getElementById('micBtn');
+  let st = document.getElementById('voiceStatus');
+  if(!isRecording){
+    try{
+      let stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = function(e){ if(e.data.size>0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = function(){
+        let blob = new Blob(audioChunks, {type:'audio/webm'});
+        let reader = new FileReader();
+        reader.onload = function(e){
+          audioData = e.target.result;
+          document.getElementById('preview').innerHTML = '<audio src="'+audioData+'" controls></audio>';
+          st.innerText = 'Awaz record ho gayi ✓ - Ab Post Karo dabao';
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.classList.add('recording');
+      btn.innerText = '⏹️';
+      st.innerText = '🔴 Recording ho rahi hai... dobara dabao band karne ke liye';
+    }catch(err){ alert('Mic ki ijazat do! Allow dabao'); }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.innerText = '🎤';
+    st.innerText = '';
+  }
+}
 
 if(currentUser){ showMain(); } else { document.getElementById('loginPage').style.display='block'; }
 
@@ -130,7 +176,6 @@ function showMain(){
         let keys = Object.keys(val).reverse();
         let fbPosts = [];
         keys.forEach(function(k){ let p = val[k]; p._key = k; if(!p.comments) p.comments=[]; fbPosts.push(p); });
-        // Firebase wali posts ko local ke sath mila do
         posts = fbPosts;
         saveLocal();
         renderPosts();
@@ -169,8 +214,9 @@ function renderPosts(){
     }
     let div=document.createElement('div'); div.className='post';
     let mediaHTML=''; if(post.media){ if(post.isVideo) mediaHTML='<video src="'+post.media+'" controls></video>'; else mediaHTML='<img src="'+post.media+'">'; }
+    let audioHTML=''; if(post.audio){ audioHTML='<audio src="'+post.audio+'" controls></audio>'; }
     let commentsHTML=(post.comments||[]).map(c=>'<div>'+c+'</div>').join('');
-    div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
+    div.innerHTML='<div class="post-top"><h3>'+post.name+'</h3><button class="follow-btn '+(post.follow?'following':'')+'" onclick="toggleFollow('+index+')">'+(post.follow?'Following ✓':'Follow')+'</button></div>'+(post.text?'<p>'+post.text+'</p>':'')+audioHTML+mediaHTML+'<div class="actions"><button class="'+(post.liked?'liked':'')+'" onclick="likePost('+index+')">❤️ Like <span>'+post.likes+'</span></button><button onclick="toggleComment(this)">💬 Comment</button><button class="delete-btn" onclick="deletePost('+index+')">🗑️ Delete</button></div><div class="comment-box"><input placeholder="Comment likho..." onkeydown="if(event.key===\'Enter\'){addComment('+index+',this)}"><div class="comment-list">'+commentsHTML+'</div></div>';
     feed.appendChild(div);
   });
   if(feed.innerHTML==='' && q){ feed.innerHTML='<p style="text-align:center;color:#aaa">Koi result nahi mila: '+q+'</p>'; }
@@ -180,18 +226,16 @@ function addPost(){
   let name=nameInput ? nameInput+' - '+currentUser : currentUser;
   let text=document.getElementById('postText').value;
   let file=document.getElementById('mediaInput').files[0];
-  if(!text && !file && !nameInput){ alert('Pehle kuch likho!'); return; }
-  let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,likes:0,liked:false,follow:false,comments:[],time:Date.now()};
-  // 1. Pehle local me dikhao - taake ghaib na ho
+  if(!text && !file && !nameInput && !audioData){ alert('Pehle kuch likho!'); return; }
+  let newPost={name:name,text:text,media:previewData||'',isVideo:previewIsVideo,audio:audioData||'',likes:0,liked:false,follow:false,comments:[],time:Date.now()};
   posts.unshift(newPost);
   saveLocal();
   renderPosts();
   document.getElementById('statusText').innerText = 'Post ho gayi ✓';
-  // 2. Phir Firebase ko bhejo
   if(dbRef){
     dbRef.push(newPost).then(function(){ document.getElementById('statusText').innerText = 'Post ho gayi ✓ - Sab ko nazar aayegi'; }).catch(function(err){ document.getElementById('statusText').innerText = 'Post is mobile me ho gayi ✓, Firebase me nahi gayi - Database banao!'; });
   }
-  document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; previewData=''; previewIsVideo=false;
+  document.getElementById('dramaName').value=''; document.getElementById('postText').value=''; document.getElementById('mediaInput').value=''; document.getElementById('preview').innerHTML=''; document.getElementById('voiceStatus').innerText=''; previewData=''; previewIsVideo=false; audioData='';
 }
 function toggleFollow(index){ posts[index].follow=!posts[index].follow; saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({follow:posts[index].follow}); renderPosts(); }
 function likePost(index){ if(posts[index].liked){posts[index].liked=false;posts[index].likes--;} else {posts[index].liked=true;posts[index].likes++;} saveLocal(); if(posts[index]._key && dbRef) dbRef.child(posts[index]._key).update({liked:posts[index].liked,likes:posts[index].likes}); renderPosts(); }
